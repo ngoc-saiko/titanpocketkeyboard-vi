@@ -220,15 +220,18 @@ class InputMethodService : AndroidInputMethodService() {
 	}
 
 	override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+		var telexOn = true
 		// Update modifier states
 		if(!event.isLongPress && event.repeatCount == 0) {
 			when(event.keyCode) {
 				KeyEvent.KEYCODE_ALT_RIGHT -> {
 					alt.onKeyDown()
+					telexOn = false
 					updateStatusIconIfNeeded(true)
 				}
 				KeyEvent.KEYCODE_SHIFT_LEFT -> {
 					shift.onKeyDown()
+					telexOn = false
 					updateStatusIconIfNeeded(true)
 				}
 				KeyEvent.KEYCODE_SYM -> {
@@ -283,7 +286,8 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 
 		// Check if we're in Vietnamese mode and not using modifier keys
-		if (!event.isCtrlPressed && !sym.get()) {
+		// Start Telex engine
+		if (!event.isCtrlPressed && !sym.get() && telexOn) {
 			if (event.keyCode == KeyEvent.KEYCODE_DEL) {
 				// Handle backspace (delete last Telex character)
 				val replacement = vietnameseTelex.processKey('\b')  // '\b' signals backspace
