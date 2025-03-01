@@ -3,7 +3,10 @@ import android.util.Log
 class VietnameseTextInput {
     private var buffer = StringBuilder()
 
-    private val vowelMap = setOf('a', 'e', 'i', 'o', 'u', 'y', 'A', 'E', 'I', 'O', 'U', 'Y')
+    private val vowelMap = setOf(
+        'a', 'ă', 'â', 'e', 'ê', 'i', 'o', 'ô', 'ơ', 'u', 'ư', 'y',
+        'A', 'Ă', 'Â', 'E', 'Ê', 'I', 'O', 'Ô', 'Ơ', 'U', 'Ư', 'Y'
+    )
 
     private val toneMarks = mapOf(
         's' to '\'', 'f' to '`', 'r' to '?', 'x' to '~', 'j' to '.'
@@ -39,11 +42,12 @@ class VietnameseTextInput {
     }
 
     private fun applyToneMark(toneMark: Char): String? {
-        for (i in buffer.length - 1 downTo 0) {  // Search for the last vowel
-            if (buffer[i] in vowelMap) {
+        for (i in buffer.indices) {  // Search for the last vowel
+            val char = buffer[i]
+            Log.d("TelexInput", "applyToneMark: char = $char")
 
-                val char = buffer[i]
-                Log.d("TelexInput", "Found a vowel! index: $i, char: $char")
+            if (buffer[i] in vowelMap) {
+                Log.d("TelexInput", "Found a vowel! index: $i")
                 buffer.setCharAt(i, getVowelWithTone(char, toneMark))  // Apply tone mark
                 return buffer.toString()
             }
