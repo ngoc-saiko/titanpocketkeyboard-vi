@@ -1,5 +1,6 @@
 package io.github.oin.titanpocketkeyboard
 
+import VietnameseTextInput
 import android.content.Context
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -13,6 +14,9 @@ import android.view.inputmethod.EditorInfo
 import androidx.preference.PreferenceManager
 import java.util.Locale
 import android.inputmethodservice.InputMethodService as AndroidInputMethodService
+
+// First, add this to your constants at the top of the file (alongside other MPSUBST constants)
+const val VIETNAMESE_TELEX_MODE = "VietnameseTelex"
 
 /**
  * @return true if it is suitable to provide suggestions or text transforms in the given editor.
@@ -41,6 +45,16 @@ fun makeKeyEvent(original: KeyEvent, code: Int, metaState: Int, action: Int, sou
 }
 
 val templates = hashMapOf(
+	"en" to hashMapOf(
+		// Basic English template with minimal special characters
+		KeyEvent.KEYCODE_A to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_E to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_I to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_O to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_U to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_Y to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_SPACE to arrayOf(MPSUBST_STR_DOTSPACE)
+	),
 	"fr" to hashMapOf(
 		KeyEvent.KEYCODE_A to arrayOf('`', '^', 'æ', MPSUBST_BYPASS),
 		KeyEvent.KEYCODE_E to arrayOf('´', '`', '^', '¨', MPSUBST_BYPASS),
@@ -114,6 +128,12 @@ class InputMethodService : AndroidInputMethodService() {
 
 	private var autoCapitalize = false
 
+	// Add this property to your class
+	private val vietnameseTelex = VietnameseTextInput()
+
+	// Add property to track if Vietnamese mode is enabled
+	private var vietnameseMode = false
+
 	private val multipress = MultipressController(arrayOf(
 		templates["fr-ext"]!!,
 		hashMapOf(
@@ -180,6 +200,15 @@ class InputMethodService : AndroidInputMethodService() {
 			updateAutoCapitalization()
 		}
 
+		// Reset Vietnamese Telex buffer only if we detect a new word
+		if (vietnameseMode) {
+			val beforeCursor = currentInputConnection?.getTextBeforeCursor(1, 0) ?: ""
+			if (beforeCursor.isEmpty() || beforeCursor.last().isWhitespace()) {
+				Log.d("TelexInput", "New word detected, resetting buffer.")
+				vietnameseTelex.reset()
+			}
+		}
+
 		super.onUpdateSelection(
 			oldSelStart,
 			oldSelEnd,
@@ -220,8 +249,9 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 
 		// Apply multipress substitution
-		if(event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE) {
+		if(vietnameseMode == false && (event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE)) {
 			val char = multipress.process(event, enhancedMetaState(event))
+			Log.d("TelexInput", "char: $char")
 			if(char != MPSUBST_BYPASS) {
 				if(char != MPSUBST_NOTHING) {
 					currentInputConnection?.deleteSurroundingText(1, 0)
@@ -252,9 +282,48 @@ class InputMethodService : AndroidInputMethodService() {
 			return true
 		}
 
+		// Check if we're in Vietnamese mode and not using modifier keys
+		if (!event.isCtrlPressed && !sym.get()) {
+			if (event.keyCode == KeyEvent.KEYCODE_DEL) {
+				// Handle backspace (delete last Telex character)
+				val replacement = vietnameseTelex.processKey('\b')  // '\b' signals backspace
+				if (replacement != null) {
+					currentInputConnection?.deleteSurroundingText(1, 0)
+					sendCharacter(replacement, true)
+				} else {
+					vietnameseTelex.reset()  // Reset state if backspace clears everything
+				}
+				return true
+			}
+
+			// Get the Unicode character for this key event
+			val unicodeChar = event.getUnicodeChar(enhancedMetaState(event)).toChar()
+			Log.d("TelexInput", "Processing character: $unicodeChar")
+			// Process Vietnamese Telex input
+			val replacement = vietnameseTelex.processKey(unicodeChar)
+			Log.d("TelexInput", "replacement: $replacement")
+
+			if (replacement != null && replacement != unicodeChar.toString()) {
+				Log.d("TelexInput", "Transformed to: $replacement")
+				// Delete the previous character and insert the new transformed character
+				currentInputConnection?.deleteSurroundingText(replacement.length, 0)
+				sendCharacter(replacement, true)  // Use strict mode to preserve case
+				consumeModifierNext()
+				vibrate()
+				return true
+			}
+
+			// If no transformation, process normally
+			val result = super.onKeyDown(keyCode, event)
+			Log.d("TelexInput", "No transformation found, using default input")
+
+			return result
+		}
+
 		// Print something if it is a simple printing key press
 		if((event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE || (event.keyCode == KeyEvent.KEYCODE_ENTER && shift.get()))) {
 			val str = event.getUnicodeChar(enhancedMetaState(event)).toChar().toString()
+			Log.d("TelexInput", "str: $str")
 			currentInputConnection?.commitText(str, 1)
 
 			consumeModifierNext()
@@ -406,7 +475,8 @@ class InputMethodService : AndroidInputMethodService() {
 	 * Make the device vibrate.
 	 */
 	private fun vibrate() {
-		vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+		// disable vibrate
+//		vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
 	}
 
 	/**
@@ -514,6 +584,10 @@ class InputMethodService : AndroidInputMethodService() {
 		multipress.ignoreFirstLevel = !preferences.getBoolean("UseFirstLevel", true)
 		multipress.ignoreDotSpace = !preferences.getBoolean("DotSpace", true)
 		multipress.ignoreConsonantsOnFirstLevel = preferences.getBoolean("FirstLevelOnlyVowels", false)
+
+		// Add Vietnamese mode preference
+		vietnameseMode = true
+//		vietnameseMode = preferences.getString("InputMode", "") == VIETNAMESE_TELEX_MODE
 
 		val templateId = preferences.getString("FirstLevelTemplate", "fr")
 		if(templates.containsKey(templateId)) {

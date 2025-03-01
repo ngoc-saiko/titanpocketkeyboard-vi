@@ -3,7 +3,7 @@
 	<PreferenceCategory android:title="General">
 		<SwitchPreference
 			android:key="AutoCapitalize"
-			android:defaultValue="true"
+			android:defaultValue="false"
 			android:title="Auto-capitalize"
 			android:summary="Start the first word of a sentence with a capital letter"
 			/>
@@ -23,7 +23,7 @@
 			/>
 		<ListPreference
 			android:key="FirstLevelTemplate"
-			android:defaultValue="fr-ext"
+			android:defaultValue="en"
 			android:title="Template"
 			android:summary="%s"
 			android:entries="@array/first_level_template"
@@ -35,6 +35,13 @@
 			android:title="Only vowels"
 			android:summary="Disable multipress for consonants (like ç or ß)"
 			/>
+<!--		<ListPreference-->
+<!--			android:key="InputMode"-->
+<!--			android:title="Input Mode"-->
+<!--			android:summary="Select the input method mode"-->
+<!--			android:entries="@array/input_mode_entries"-->
+<!--			android:entryValues="@array/input_mode_values"-->
+<!--			android:defaultValue="" />-->
 	</PreferenceCategory>
 	<PreferenceCategory android:title="Timing">
 		<SeekBarPreference

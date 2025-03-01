@@ -1,5 +1,6 @@
 <resources>
 	<string-array name="first_level_template">
+		<item>English</item>
 		<item>French</item>
 		<item>Spanish</item>
 		<item>German</item>
@@ -9,6 +10,7 @@
 		<item>àáâäã</item>
 	</string-array>
 	<string-array name="first_level_template_values">
+		<item>en</item>
 		<item>fr</item>
 		<item>es</item>
 		<item>de</item>
@@ -16,5 +18,14 @@
 		<item>fr-ext</item>
 		<item>order1</item>
 		<item>order2</item>
+	</string-array>
+	<string-array name="input_mode_entries">
+		<item>Normal</item>
+		<item>Vietnamese Telex</item>
+	</string-array>
+
+	<string-array name="input_mode_values">
+		<item></item>
+		<item>VietnameseTelex</item>
 	</string-array>
 </resources>
