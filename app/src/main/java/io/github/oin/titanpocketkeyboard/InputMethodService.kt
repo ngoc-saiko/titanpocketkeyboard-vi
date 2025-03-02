@@ -342,6 +342,7 @@ class InputMethodService : AndroidInputMethodService() {
 			}
 
 			// If no transformation, process normally
+			consumeModifierNext()
 			val result = super.onKeyDown(keyCode, event)
 			Log.d("TelexInput", "No transformation found, using default input: $result")
 
@@ -514,6 +515,8 @@ class InputMethodService : AndroidInputMethodService() {
 	private fun updateStatusIconIfNeeded(force: Boolean = false) {
 		val shiftState = shift.get()
 		val altState = alt.get()
+		Log.d("TelexInput", "current altState: $altState - last altState: $lastAlt")
+
 		val symState = sym.get()
 		if(force || symState != lastSym || altState != lastAlt || shiftState != lastShift) {
 			if(sym.get()) {
