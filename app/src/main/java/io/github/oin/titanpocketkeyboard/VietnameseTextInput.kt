@@ -79,16 +79,16 @@ class VietnameseTextInput {
     )
 
     private val toneMapping = mapOf(
-        'a' to mapOf('\'' to 'á', '`' to 'à', '?' to 'ả', '~' to 'ã', '.' to 'ạ'),
         'ă' to mapOf('\'' to 'ắ', '`' to 'ằ', '?' to 'ẳ', '~' to 'ẵ', '.' to 'ặ'),
         'â' to mapOf('\'' to 'ấ', '`' to 'ầ', '?' to 'ẩ', '~' to 'ẫ', '.' to 'ậ'),
-        'e' to mapOf('\'' to 'é', '`' to 'è', '?' to 'ẻ', '~' to 'ẽ', '.' to 'ẹ'),
         'ê' to mapOf('\'' to 'ế', '`' to 'ề', '?' to 'ể', '~' to 'ễ', '.' to 'ệ'),
-        'o' to mapOf('\'' to 'ó', '`' to 'ò', '?' to 'ỏ', '~' to 'õ', '.' to 'ọ'),
         'ô' to mapOf('\'' to 'ố', '`' to 'ồ', '?' to 'ổ', '~' to 'ỗ', '.' to 'ộ'),
         'ơ' to mapOf('\'' to 'ớ', '`' to 'ờ', '?' to 'ở', '~' to 'ỡ', '.' to 'ợ'),
-        'u' to mapOf('\'' to 'ú', '`' to 'ù', '?' to 'ủ', '~' to 'ũ', '.' to 'ụ'),
         'ư' to mapOf('\'' to 'ứ', '`' to 'ừ', '?' to 'ử', '~' to 'ữ', '.' to 'ự'),
+        'a' to mapOf('\'' to 'á', '`' to 'à', '?' to 'ả', '~' to 'ã', '.' to 'ạ'),
+        'e' to mapOf('\'' to 'é', '`' to 'è', '?' to 'ẻ', '~' to 'ẽ', '.' to 'ẹ'),
+        'o' to mapOf('\'' to 'ó', '`' to 'ò', '?' to 'ỏ', '~' to 'õ', '.' to 'ọ'),
+        'u' to mapOf('\'' to 'ú', '`' to 'ù', '?' to 'ủ', '~' to 'ũ', '.' to 'ụ'),
         'i' to mapOf('\'' to 'í', '`' to 'ì', '?' to 'ỉ', '~' to 'ĩ', '.' to 'ị'),
         'y' to mapOf('\'' to 'ý', '`' to 'ỳ', '?' to 'ỷ', '~' to 'ỹ', '.' to 'ỵ')
     )
@@ -148,15 +148,17 @@ class VietnameseTextInput {
     }
 
     private fun applyToneMark(toneMark: Char, originalChar: Char): String? {
+        val lastVowelIndex = findFirstVowelIndex(buffer, toneMapping)
+
+        if (lastVowelIndex != -1) {
+            val char = buffer[lastVowelIndex]
+            Log.d("TelexInput", "Found a vowel! index: $lastVowelIndex")
+            buffer.setCharAt(lastVowelIndex, getVowelWithTone(char, toneMark))
+            return buffer.toString()
+        }
+
         for (i in buffer.indices) {  // Search for the last vowel
             val char = buffer[i]
-            Log.d("TelexInput", "applyToneMark: char = $char")
-
-            if (char in vowelMap) {
-                Log.d("TelexInput", "Found a vowel! index: $i")
-                buffer.setCharAt(i, getVowelWithTone(char, toneMark))  // Apply tone mark
-                return buffer.toString()
-            }
 
             if (char in tonedVowelSet) {
                 Log.d("TelexInput", "Found a toned vowel! index: $i")
@@ -209,5 +211,13 @@ class VietnameseTextInput {
     fun setBuffer(string: String) {
         buffer.clear()
         buffer.append(string)
+    }
+
+    private fun findFirstVowelIndex(buffer: StringBuilder, toneMapping: Map<Char, Map<Char, Char>>): Int {
+        for (key in toneMapping.keys) {  // Loop through vowels in toneMapping
+            val index = buffer.indexOf(key.toString()) // Search for the vowel in buffer
+            if (index != -1) return index // Return the first found index
+        }
+        return -1  // Return -1 if no vowel is found
     }
 }
