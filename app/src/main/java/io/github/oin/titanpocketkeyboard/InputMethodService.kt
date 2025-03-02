@@ -47,10 +47,10 @@ fun makeKeyEvent(original: KeyEvent, code: Int, metaState: Int, action: Int, sou
 val templates = hashMapOf(
 	"en" to hashMapOf(
 		// Basic English template with minimal special characters
-		KeyEvent.KEYCODE_A to arrayOf(MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_E to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_A to arrayOf('^', MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_E to arrayOf('^', MPSUBST_BYPASS),
 		KeyEvent.KEYCODE_I to arrayOf(MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_O to arrayOf(MPSUBST_BYPASS),
+		KeyEvent.KEYCODE_O to arrayOf('^', MPSUBST_BYPASS),
 		KeyEvent.KEYCODE_U to arrayOf(MPSUBST_BYPASS),
 		KeyEvent.KEYCODE_Y to arrayOf(MPSUBST_BYPASS),
 		KeyEvent.KEYCODE_SPACE to arrayOf(MPSUBST_STR_DOTSPACE)
@@ -255,7 +255,7 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 
 		// Apply multipress substitution
-		if(vietnameseMode == false && (event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE)) {
+		if((event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE)) {
 			val char = multipress.process(event, enhancedMetaState(event))
 			if(char != MPSUBST_BYPASS) {
 				if(char != MPSUBST_NOTHING) {
@@ -284,6 +284,8 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// Ignore all long presses after this point
 		if(event.isLongPress || event.repeatCount > 0) {
+			Log.d("TelexInput", "isLongPress: " + event.isLongPress)
+
 			return true
 		}
 
