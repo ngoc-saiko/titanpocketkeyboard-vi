@@ -94,7 +94,7 @@ class VietnameseTextInput {
     )
 
     // Set of characters that should not trigger Telex transformations
-    private val ignoredChars = setOf('w', 'z')
+    private val ignoredChars = setOf('z')
 
     // List of invalid sequences that should prevent Telex processing
     private val invalidSequences = listOf(
