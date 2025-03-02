@@ -309,8 +309,18 @@ class InputMethodService : AndroidInputMethodService() {
 
 			if (replacement != null && replacement != unicodeChar.toString()) {
 				Log.d("TelexInput", "Transformed to: $replacement")
+				var replacementLength = replacement.length
+				if (vietnameseTelex.isReverseTone) {
+					replacementLength = replacementLength - 1
+				}
 				// Delete the previous character and insert the new transformed character
-				currentInputConnection?.deleteSurroundingText(replacement.length, 0)
+				val textBeforeCursor = currentInputConnection?.getTextBeforeCursor(100, 0)?.toString() ?: ""
+				val lastSpaceIndex = textBeforeCursor.lastIndexOf(' ')
+				val deleteLength = minOf(replacementLength, textBeforeCursor.length - lastSpaceIndex - 1)
+
+				if (deleteLength > 0) {
+					currentInputConnection?.deleteSurroundingText(deleteLength, 0)
+				}
 				sendCharacter(replacement, true)  // Use strict mode to preserve case
 				consumeModifierNext()
 				vibrate()
