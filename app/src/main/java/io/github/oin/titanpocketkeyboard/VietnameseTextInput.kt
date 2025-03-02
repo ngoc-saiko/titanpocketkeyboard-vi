@@ -93,8 +93,29 @@ class VietnameseTextInput {
         'y' to mapOf('\'' to 'ý', '`' to 'ỳ', '?' to 'ỷ', '~' to 'ỹ', '.' to 'ỵ')
     )
 
+    // Set of characters that should not trigger Telex transformations
+    private val ignoredChars = setOf('w', 'z')
+
+    // List of invalid sequences that should prevent Telex processing
+    private val invalidSequences = listOf(
+        "f", "w", "z", "j",
+        "pr", "pl", "kr", "kl", "br", "bl", "gr", "vl", "rr",
+        "cf", "cw", "cz", "jf", "jw", "jz", "pf", "pw", "pz", "qf", "qw", "qz",
+        "df", "dw", "dz", "tf", "tw", "tz", "lf", "lw", "lz",
+        "ww", "zz", "ff", "jj", "af", "awf", "aa", "ee", "uw", "ow",
+    )
+
     fun processKey(char: Char): String? {
         isReverseTone = false
+        val bufferStr = buffer.toString()
+        // Ignore processing for specific characters
+        if (char in ignoredChars) {
+            return char.toString()  // Return the original character as is
+        }
+        // Check if the buffer contains any invalid sequences
+        if (invalidSequences.any { bufferStr.contains(it) }) {
+            return char.toString()  // Return the original character as is
+        }
         if (char == '\b') return handleBackspace()
 
         if (char in toneMarks.keys) return applyToneMark(toneMarks[char]!!, char)
