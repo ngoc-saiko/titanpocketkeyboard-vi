@@ -183,6 +183,9 @@ class InputMethodService : AndroidInputMethodService() {
 
 		updateFromPreferences()
 
+		// reset buffer
+		vietnameseTelex.reset()
+
 		if(!sym.get()) {
 			updateAutoCapitalization()
 		}
@@ -287,7 +290,7 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// Check if we're in Vietnamese mode and not using modifier keys
 		// Start Telex engine
-		if (!event.isCtrlPressed && !sym.get() && telexOn) {
+		if (!event.isCtrlPressed && !sym.get() && telexOn && event.keyCode != KeyEvent.KEYCODE_ENTER) {
 			if (event.keyCode == KeyEvent.KEYCODE_DEL) {
 				// Handle backspace (delete last Telex character)
 				val replacement = vietnameseTelex.processKey('\b')  // '\b' signals backspace
@@ -329,7 +332,7 @@ class InputMethodService : AndroidInputMethodService() {
 
 			// If no transformation, process normally
 			val result = super.onKeyDown(keyCode, event)
-			Log.d("TelexInput", "No transformation found, using default input")
+			Log.d("TelexInput", "No transformation found, using default input: $result")
 
 			return result
 		}
@@ -346,6 +349,7 @@ class InputMethodService : AndroidInputMethodService() {
 
 		if(event.keyCode == KeyEvent.KEYCODE_ENTER) {
 			consumeModifierNext()
+			vietnameseTelex.reset()
 		}
 
 		return super.onKeyDown(keyCode, event)
