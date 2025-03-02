@@ -257,7 +257,6 @@ class InputMethodService : AndroidInputMethodService() {
 		// Apply multipress substitution
 		if(vietnameseMode == false && (event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE)) {
 			val char = multipress.process(event, enhancedMetaState(event))
-			Log.d("TelexInput", "char: $char")
 			if(char != MPSUBST_BYPASS) {
 				if(char != MPSUBST_NOTHING) {
 					currentInputConnection?.deleteSurroundingText(1, 0)
@@ -287,6 +286,16 @@ class InputMethodService : AndroidInputMethodService() {
 		if(event.isLongPress || event.repeatCount > 0) {
 			return true
 		}
+
+		// Get text before cursor (e.g., up to 50 characters to ensure we capture the full word)
+		val textBeforeCursor = currentInputConnection?.getTextBeforeCursor(50, 0)?.toString() ?: ""
+
+		// Extract the word from the last space
+		val lastWord = textBeforeCursor.substringAfterLast(" ")
+		Log.d("TelexInput", "last word from cursor: $lastWord")
+
+		// Set the extracted word to the buffer
+		vietnameseTelex.setBuffer(lastWord)
 
 		// Check if we're in Vietnamese mode and not using modifier keys
 		// Start Telex engine

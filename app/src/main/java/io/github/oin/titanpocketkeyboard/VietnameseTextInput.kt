@@ -98,11 +98,19 @@ class VietnameseTextInput {
 
     // List of invalid sequences that should prevent Telex processing
     private val invalidSequences = listOf(
+        // Single invalid letters
         "f", "w", "z", "j",
+        // Consonant clusters not found in Vietnamese
         "pr", "pl", "kr", "kl", "br", "bl", "gr", "vl", "rr",
+        // Other invalid combinations
         "cf", "cw", "cz", "jf", "jw", "jz", "pf", "pw", "pz", "qf", "qw", "qz",
         "df", "dw", "dz", "tf", "tw", "tz", "lf", "lw", "lz",
         "ww", "zz", "ff", "jj", "af", "awf", "aa", "ee", "uw", "ow",
+        // Numbers (0-9) as single characters
+        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+        // Special characters
+        "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+",
+        "[", "]", "{", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "<", ">", "/", "?"
     )
 
     fun processKey(char: Char): String? {
@@ -196,5 +204,10 @@ class VietnameseTextInput {
 
     fun reset() {
         buffer.clear()
+    }
+
+    fun setBuffer(string: String) {
+        buffer.clear()
+        buffer.append(string)
     }
 }
