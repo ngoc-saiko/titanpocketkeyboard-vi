@@ -224,6 +224,12 @@ class InputMethodService : AndroidInputMethodService() {
 
 	override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
 		var telexOn = true
+
+		if (keyCode == KeyEvent.KEYCODE_SPACE && event.isShiftPressed) {
+			toggleInputMode()
+			return true  // Consume the event to prevent space input
+		}
+
 		// Update modifier states
 		if(!event.isLongPress && event.repeatCount == 0) {
 			when(event.keyCode) {
@@ -379,6 +385,17 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 
 		return super.onKeyUp(keyCode, event)
+	}
+
+	private fun toggleInputMode() {
+		val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+		val currentMode = preferences.getString("InputMode", "")
+		val newMode = if (currentMode == "VietnameseTelex") "" else "VietnameseTelex"
+
+		vietnameseMode = newMode == "VietnameseTelex"  // Update mode flag
+		preferences.edit().putString("InputMode", newMode).apply()
+
+		Log.d("Keyboard", "Input mode changed to: ${if (vietnameseMode) "VietnameseTelex" else "Normal"}")
 	}
 
 	/**
@@ -604,8 +621,8 @@ class InputMethodService : AndroidInputMethodService() {
 		multipress.ignoreConsonantsOnFirstLevel = preferences.getBoolean("FirstLevelOnlyVowels", false)
 
 		// Add Vietnamese mode preference
-		vietnameseMode = true
-//		vietnameseMode = preferences.getString("InputMode", "") == VIETNAMESE_TELEX_MODE
+//		vietnameseMode = true
+		vietnameseMode = preferences.getString("InputMode", "") == VIETNAMESE_TELEX_MODE
 
 		val templateId = preferences.getString("FirstLevelTemplate", "fr")
 		if(templates.containsKey(templateId)) {
