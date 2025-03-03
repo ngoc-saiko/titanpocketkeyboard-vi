@@ -174,7 +174,6 @@ class VietnameseTextInput {
     }
 
     private fun applyCharModifiers(char: Char): Boolean {
-        Log.d("TelexInput", "applyCharModifiers buffer: $buffer - charModified: $charModified")
         // filter invalid char
         if (char !in modifiableChars) {
             return false
@@ -186,7 +185,6 @@ class VietnameseTextInput {
             for ((pattern, replacement) in reverseCharModifier) {
                 if (buffer.endsWith(pattern, true)) {
                     buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
-                    Log.d("TelexInput", "Applied modifier: $buffer")
                     return true;
                 }
             }
@@ -196,7 +194,6 @@ class VietnameseTextInput {
                 if (buffer.endsWith(pattern, true)) {
                     buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
                     val check = char != 'd'
-                    Log.d("TelexInput", "Applied modifier: $buffer, char: $char $check")
                     if (char != 'd' && char != 'w') {
                         charModified = true
                     }
@@ -216,7 +213,6 @@ class VietnameseTextInput {
 
         if (lastVowelIndex != -1 && !toneAdded) {
             val char = buffer[lastVowelIndex]
-            Log.d("TelexInput", "Found a vowel! index: $lastVowelIndex")
             buffer.setCharAt(lastVowelIndex, getVowelWithTone(char, toneMark))
             toneAdded = true
             lastToneMark = toneMark
@@ -236,7 +232,6 @@ class VietnameseTextInput {
             val char = buffer[i]
 
             if (char in tonedVowelSet) {
-                Log.d("TelexInput", "Found a toned vowel! index: $i")
                 // remove tone
                 val baseChar = removeToneMap[char] ?: char
                 buffer.setCharAt(i, baseChar)  // remove tone mark

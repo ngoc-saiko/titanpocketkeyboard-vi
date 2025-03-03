@@ -293,8 +293,6 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// Ignore all long presses after this point
 		if(event.isLongPress || event.repeatCount > 0) {
-			Log.d("TelexInput", "isLongPress: " + event.isLongPress)
-
 			return true
 		}
 
@@ -324,13 +322,10 @@ class InputMethodService : AndroidInputMethodService() {
 
 			// Get the Unicode character for this key event
 			val unicodeChar = event.getUnicodeChar(enhancedMetaState(event)).toChar()
-			Log.d("TelexInput", "Processing character: $unicodeChar")
 			// Process Vietnamese Telex input
 			val replacement = vietnameseTelex.processKey(unicodeChar)
-			Log.d("TelexInput", "replacement: $replacement")
 
 			if (replacement != null && replacement != unicodeChar.toString()) {
-				Log.d("TelexInput", "Transformed to: $replacement")
 				var replacementLength = replacement.length
 				if (vietnameseTelex.isReverseTone) {
 					replacementLength = replacementLength - 1
@@ -351,7 +346,6 @@ class InputMethodService : AndroidInputMethodService() {
 			// If no transformation, process normally
 			consumeModifierNext()
 			val result = super.onKeyDown(keyCode, event)
-			Log.d("TelexInput", "No transformation found, using default input: $result")
 
 			return result
 		}
@@ -614,8 +608,6 @@ class InputMethodService : AndroidInputMethodService() {
 
 		consumeModifierNext()
 		vietnameseTelex.reset()
-
-		Log.d("Keyboard", "Input mode changed to: ${if (vietnameseMode) "vi" else "en"}")
 	}
 
 	/**
