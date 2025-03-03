@@ -2,6 +2,8 @@ package io.github.oin.titanpocketkeyboard
 
 import VietnameseTextInput
 import android.content.Context
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.InputType
@@ -45,6 +47,10 @@ fun makeKeyEvent(original: KeyEvent, code: Int, metaState: Int, action: Int, sou
 }
 
 val templates = hashMapOf(
+	"vi" to hashMapOf(
+		// Basic English template with minimal special characters
+		KeyEvent.KEYCODE_SPACE to arrayOf(MPSUBST_STR_DOTSPACE)
+	),
 	"en" to hashMapOf(
 		// Basic English template with minimal special characters
 		KeyEvent.KEYCODE_SPACE to arrayOf(MPSUBST_STR_DOTSPACE)
@@ -217,6 +223,14 @@ class InputMethodService : AndroidInputMethodService() {
 
 	override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
 		var telexOn = true
+
+		if (keyCode == KeyEvent.KEYCODE_SPACE && event.isShiftPressed) {
+			toggleInputMode()
+			vibrate()
+			playNotificationSound()
+			return true  // Consume the event to prevent space input
+		}
+
 		// Update modifier states
 		if(!event.isLongPress && event.repeatCount == 0) {
 			when(event.keyCode) {
@@ -262,7 +276,6 @@ class InputMethodService : AndroidInputMethodService() {
 
 					consumeModifierNext()
 				}
-				vibrate()
 				return true
 			}
 		}
@@ -296,7 +309,7 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// Check if we're in Vietnamese mode and not using modifier keys
 		// Start Telex engine
-		if (!event.isCtrlPressed && !sym.get() && telexOn && event.keyCode != KeyEvent.KEYCODE_ENTER) {
+		if (vietnameseMode && !event.isCtrlPressed && !sym.get() && telexOn && event.keyCode != KeyEvent.KEYCODE_ENTER) {
 			if (event.keyCode == KeyEvent.KEYCODE_DEL) {
 				// Handle backspace (delete last Telex character)
 				val replacement = vietnameseTelex.processKey('\b')  // '\b' signals backspace
@@ -332,7 +345,6 @@ class InputMethodService : AndroidInputMethodService() {
 				}
 				sendCharacter(replacement, true)  // Use strict mode to preserve case
 				consumeModifierNext()
-				vibrate()
 				return true
 			}
 
@@ -499,8 +511,12 @@ class InputMethodService : AndroidInputMethodService() {
 	 * Make the device vibrate.
 	 */
 	private fun vibrate() {
-		// disable vibrate
-//		vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+		vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+	}
+
+	private fun playNotificationSound() {
+		val toneGen = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
+		toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 200)  // Play beep sound
 	}
 
 	/**
@@ -588,6 +604,20 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 	}
 
+	private fun toggleInputMode() {
+		val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+		val currentMode = preferences.getString("FirstLevelTemplate", "")
+		val newMode = if (currentMode == "vi") "en" else "vi"
+
+		vietnameseMode = newMode == "vi"  // Update mode flag
+		preferences.edit().putString("FirstLevelTemplate", newMode).apply()
+
+		consumeModifierNext()
+		vietnameseTelex.reset()
+
+		Log.d("Keyboard", "Input mode changed to: ${if (vietnameseMode) "vi" else "en"}")
+	}
+
 	/**
 	 * Update values from the preferences.
 	 */
@@ -610,11 +640,11 @@ class InputMethodService : AndroidInputMethodService() {
 		multipress.ignoreDotSpace = !preferences.getBoolean("DotSpace", true)
 		multipress.ignoreConsonantsOnFirstLevel = preferences.getBoolean("FirstLevelOnlyVowels", false)
 
+		val templateId = preferences.getString("FirstLevelTemplate", "vi")
 		// Add Vietnamese mode preference
-		vietnameseMode = true
-//		vietnameseMode = preferences.getString("InputMode", "") == VIETNAMESE_TELEX_MODE
+//		vietnameseMode = true
+		vietnameseMode = templateId == "vi"
 
-		val templateId = preferences.getString("FirstLevelTemplate", "fr")
 		if(templates.containsKey(templateId)) {
 			multipress.substitutions[0] = templates[templateId]!!
 		}

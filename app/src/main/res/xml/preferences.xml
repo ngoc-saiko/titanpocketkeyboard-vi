@@ -22,13 +22,12 @@
 			android:summary="Enable accented characters by multipressing (mostly) vowels"
 			/>
 		<ListPreference
-			android:key="FirstLevelTemplate"
-			android:defaultValue="en"
-			android:title="Template"
-			android:summary="%s"
+			android:defaultValue="vi"
 			android:entries="@array/first_level_template"
 			android:entryValues="@array/first_level_template_values"
-			/>
+			android:key="FirstLevelTemplate"
+			android:summary="%s"
+			android:title="Template" />
 		<SwitchPreference
 			android:key="FirstLevelOnlyVowels"
 			android:defaultValue="false"
