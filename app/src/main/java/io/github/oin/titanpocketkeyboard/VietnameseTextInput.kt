@@ -80,17 +80,29 @@ class VietnameseTextInput {
 
     private val toneMapping = mapOf(
         'ă' to mapOf('\'' to 'ắ', '`' to 'ằ', '?' to 'ẳ', '~' to 'ẵ', '.' to 'ặ'),
+        'Ă' to mapOf('\'' to 'Ắ', '`' to 'Ằ', '?' to 'Ẳ', '~' to 'Ẵ', '.' to 'Ặ'),
         'â' to mapOf('\'' to 'ấ', '`' to 'ầ', '?' to 'ẩ', '~' to 'ẫ', '.' to 'ậ'),
+        'Â' to mapOf('\'' to 'Ấ', '`' to 'Ầ', '?' to 'Ẩ', '~' to 'Ẫ', '.' to 'Ậ'),
         'ê' to mapOf('\'' to 'ế', '`' to 'ề', '?' to 'ể', '~' to 'ễ', '.' to 'ệ'),
+        'Ê' to mapOf('\'' to 'Ế', '`' to 'Ề', '?' to 'Ể', '~' to 'Ễ', '.' to 'Ệ'),
         'ô' to mapOf('\'' to 'ố', '`' to 'ồ', '?' to 'ổ', '~' to 'ỗ', '.' to 'ộ'),
+        'Ô' to mapOf('\'' to 'Ố', '`' to 'Ồ', '?' to 'Ổ', '~' to 'Ỗ', '.' to 'Ộ'),
         'ơ' to mapOf('\'' to 'ớ', '`' to 'ờ', '?' to 'ở', '~' to 'ỡ', '.' to 'ợ'),
+        'Ơ' to mapOf('\'' to 'Ớ', '`' to 'Ờ', '?' to 'Ở', '~' to 'Ỡ', '.' to 'Ợ'),
         'ư' to mapOf('\'' to 'ứ', '`' to 'ừ', '?' to 'ử', '~' to 'ữ', '.' to 'ự'),
+        'Ư' to mapOf('\'' to 'Ứ', '`' to 'Ừ', '?' to 'Ử', '~' to 'Ữ', '.' to 'Ự'),
         'a' to mapOf('\'' to 'á', '`' to 'à', '?' to 'ả', '~' to 'ã', '.' to 'ạ'),
+        'A' to mapOf('\'' to 'Á', '`' to 'À', '?' to 'Ả', '~' to 'Ã', '.' to 'Ạ'),
         'e' to mapOf('\'' to 'é', '`' to 'è', '?' to 'ẻ', '~' to 'ẽ', '.' to 'ẹ'),
+        'E' to mapOf('\'' to 'É', '`' to 'È', '?' to 'Ẻ', '~' to 'Ẽ', '.' to 'Ẹ'),
         'o' to mapOf('\'' to 'ó', '`' to 'ò', '?' to 'ỏ', '~' to 'õ', '.' to 'ọ'),
-        'u' to mapOf('\'' to 'ú', '`' to 'ù', '?' to 'ủ', '~' to 'ũ', '.' to 'ụ'),
+        'O' to mapOf('\'' to 'Ó', '`' to 'Ò', '?' to 'Ỏ', '~' to 'Õ', '.' to 'Ọ'),
         'i' to mapOf('\'' to 'í', '`' to 'ì', '?' to 'ỉ', '~' to 'ĩ', '.' to 'ị'),
-        'y' to mapOf('\'' to 'ý', '`' to 'ỳ', '?' to 'ỷ', '~' to 'ỹ', '.' to 'ỵ')
+        'I' to mapOf('\'' to 'Í', '`' to 'Ì', '?' to 'Ỉ', '~' to 'Ĩ', '.' to 'Ị'),
+        'u' to mapOf('\'' to 'ú', '`' to 'ù', '?' to 'ủ', '~' to 'ũ', '.' to 'ụ'),
+        'U' to mapOf('\'' to 'Ú', '`' to 'Ù', '?' to 'Ủ', '~' to 'Ũ', '.' to 'Ụ'),
+        'y' to mapOf('\'' to 'ý', '`' to 'ỳ', '?' to 'ỷ', '~' to 'ỹ', '.' to 'ỵ'),
+        'Y' to mapOf('\'' to 'Ý', '`' to 'Ỳ', '?' to 'Ỷ', '~' to 'Ỹ', '.' to 'Ỵ')
     )
 
     // Set of characters that should not trigger Telex transformations
