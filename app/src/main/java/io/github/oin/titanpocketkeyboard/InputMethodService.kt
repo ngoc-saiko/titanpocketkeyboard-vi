@@ -47,12 +47,6 @@ fun makeKeyEvent(original: KeyEvent, code: Int, metaState: Int, action: Int, sou
 val templates = hashMapOf(
 	"en" to hashMapOf(
 		// Basic English template with minimal special characters
-		KeyEvent.KEYCODE_A to arrayOf('^', MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_E to arrayOf('^', MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_I to arrayOf(MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_O to arrayOf('^', MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_U to arrayOf(MPSUBST_BYPASS),
-		KeyEvent.KEYCODE_Y to arrayOf(MPSUBST_BYPASS),
 		KeyEvent.KEYCODE_SPACE to arrayOf(MPSUBST_STR_DOTSPACE)
 	),
 	"fr" to hashMapOf(
@@ -207,7 +201,6 @@ class InputMethodService : AndroidInputMethodService() {
 		if (vietnameseMode) {
 			val beforeCursor = currentInputConnection?.getTextBeforeCursor(1, 0) ?: ""
 			if (beforeCursor.isEmpty() || beforeCursor.last().isWhitespace()) {
-				Log.d("TelexInput", "New word detected, resetting buffer.")
 				vietnameseTelex.reset()
 			}
 		}
@@ -297,7 +290,6 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// Extract the word from the last space
 		val lastWord = textBeforeCursor.substringAfterLast(" ")
-		Log.d("TelexInput", "last word from cursor: $lastWord")
 
 		// Set the extracted word to the buffer
 		vietnameseTelex.setBuffer(lastWord)
@@ -355,7 +347,6 @@ class InputMethodService : AndroidInputMethodService() {
 		// Print something if it is a simple printing key press
 		if((event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE || (event.keyCode == KeyEvent.KEYCODE_ENTER && shift.get()))) {
 			val str = event.getUnicodeChar(enhancedMetaState(event)).toChar().toString()
-			Log.d("TelexInput", "str: $str")
 			currentInputConnection?.commitText(str, 1)
 
 			consumeModifierNext()
@@ -518,7 +509,6 @@ class InputMethodService : AndroidInputMethodService() {
 	private fun updateStatusIconIfNeeded(force: Boolean = false) {
 		val shiftState = shift.get()
 		val altState = alt.get()
-		Log.d("TelexInput", "current altState: $altState - last altState: $lastAlt")
 
 		val symState = sym.get()
 		if(force || symState != lastSym || altState != lastAlt || shiftState != lastShift) {

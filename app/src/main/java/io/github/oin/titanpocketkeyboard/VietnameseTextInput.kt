@@ -12,7 +12,7 @@ class VietnameseTextInput {
         'A', 'Ă', 'Â', 'E', 'Ê', 'I', 'O', 'Ô', 'Ơ', 'U', 'Ư', 'Y'
     )
 
-    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'd')
+    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'd', 'w')
 
     private val tonedVowelSet = setOf(
         'á', 'à', 'ả', 'ã', 'ạ', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ',
@@ -171,7 +171,7 @@ class VietnameseTextInput {
     }
 
     private fun applyCharModifiers(char: Char): Boolean {
-        Log.d("TelexInput", "applyCharModifiers buffer: $buffer")
+        Log.d("TelexInput", "applyCharModifiers buffer: $buffer - charModified: $charModified")
         // filter invalid char
         if (char !in modifiableChars) {
             return false
@@ -192,8 +192,11 @@ class VietnameseTextInput {
             for ((pattern, replacement) in charModifiers) {
                 if (buffer.endsWith(pattern, true)) {
                     buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
-                    Log.d("TelexInput", "Applied modifier: $buffer")
-                    charModified = true
+                    val check = char != 'd'
+                    Log.d("TelexInput", "Applied modifier: $buffer, char: $char $check")
+                    if (char != 'd' && char != 'w') {
+                        charModified = true
+                    }
                     return true;
                 }
             }
@@ -278,6 +281,7 @@ class VietnameseTextInput {
         buffer.clear()
         toneAdded = false
         lastToneMark = null
+        charModified = false
     }
 
     fun setBuffer(string: String) {
