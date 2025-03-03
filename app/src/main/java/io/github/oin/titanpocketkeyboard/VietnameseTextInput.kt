@@ -135,11 +135,14 @@ class VietnameseTextInput {
         // Single invalid letters
         "f", "w", "z", "j",
         // Consonant clusters not found in Vietnamese
-        "pr", "pl", "kr", "kl", "br", "bl", "gr", "vl", "rr",
+        "pr", "pl", "kr", "kl", "br", "bl", "gr", "vl", "rr", "ps",
         // Other invalid combinations
         "aa", "ee", "ih", "ah", "eh", "oh", "uh",
         "il", "al", "el", "ol", "ul",
-        "iq", "aq", "eq", "oq", "uq",
+        "iq", "aq", "eq", "oq", "uq", "nd",
+        "ar", "or", "ir", "ur", "er",
+        "av", "ev", "uv", "iv", "uv",
+        "ou",
         // Numbers (0-9) as single characters
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         // Special characters
@@ -151,7 +154,7 @@ class VietnameseTextInput {
         isReverseTone = false
         val bufferStr = buffer.toString()
         // Ignore processing for specific characters
-        if (char in ignoredChars) {
+        if (char !in modifiableChars && char !in toneMarks.keys) {
             return char.toString()  // Return the original character as is
         }
         // Check if the buffer contains any invalid sequences
