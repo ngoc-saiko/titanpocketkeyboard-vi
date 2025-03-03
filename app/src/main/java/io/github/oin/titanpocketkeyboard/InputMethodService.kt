@@ -257,6 +257,7 @@ class InputMethodService : AndroidInputMethodService() {
 		// Apply multipress substitution
 		if((event.isPrintingKey || event.keyCode == KeyEvent.KEYCODE_SPACE)) {
 			val char = multipress.process(event, enhancedMetaState(event))
+
 			if(char != MPSUBST_BYPASS) {
 				if(char != MPSUBST_NOTHING) {
 					currentInputConnection?.deleteSurroundingText(1, 0)

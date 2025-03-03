@@ -5,11 +5,14 @@ class VietnameseTextInput {
     public var isReverseTone = false
     public var toneAdded = false
     private var lastToneMark: Char? = null
+    private var charModified = false
 
     private val vowelMap = setOf(
         'a', 'ă', 'â', 'e', 'ê', 'i', 'o', 'ô', 'ơ', 'u', 'ư', 'y',
         'A', 'Ă', 'Â', 'E', 'Ê', 'I', 'O', 'Ô', 'Ơ', 'U', 'Ư', 'Y'
     )
+
+    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'd')
 
     private val tonedVowelSet = setOf(
         'á', 'à', 'ả', 'ã', 'ạ', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ',
@@ -77,7 +80,24 @@ class VietnameseTextInput {
         "ow" to "ơ", "Ow" to "Ơ", "OW" to "Ơ",
         "ee" to "ê", "Ee" to "Ê", "EE" to "Ê",
         "dd" to "đ", "Dd" to "Đ", "DD" to "Đ",
-        "uw" to "ư", "Uw" to "Ư", "UW" to "Ư"
+        "uw" to "ư", "Uw" to "Ư", "UW" to "Ư",
+    )
+
+    private val reverseCharModifier = mapOf(
+        "ăa" to "aa", "ăA" to "aA",
+        "Ăa" to "Aa", "ĂA" to "AA",
+        "âa" to "aa", "âA" to "aA",
+        "Âa" to "Aa", "ÂA" to "AA",
+        "ôo" to "oo", "ôO" to "oO",
+        "Ôo" to "Oo", "ÔO" to "OO",
+        "ơw" to "ow", "ơW" to "oW",
+        "Ơw" to "Ow", "ƠW" to "OW",
+        "êe" to "ee", "êE" to "eE",
+        "Êe" to "Ee", "ÊE" to "EE",
+        "đd" to "dd", "đD" to "dD",
+        "Đd" to "Dd", "ĐD" to "DD",
+        "ưw" to "uw", "ưW" to "uW",
+        "Ưw" to "Uw", "ƯW" to "UW"
     )
 
     private val toneMapping = mapOf(
@@ -117,9 +137,9 @@ class VietnameseTextInput {
         // Consonant clusters not found in Vietnamese
         "pr", "pl", "kr", "kl", "br", "bl", "gr", "vl", "rr",
         // Other invalid combinations
-        "cf", "cw", "cz", "jf", "jw", "jz", "pf", "pw", "pz", "qf", "qw", "qz",
-        "df", "dw", "dz", "tf", "tw", "tz", "lf", "lw", "lz",
-        "ww", "zz", "ff", "jj", "af", "awf", "aa", "ee", "uw", "ow",
+        "aa", "ee", "ih", "ah", "eh", "oh", "uh",
+        "il", "al", "el", "ol", "ul",
+        "iq", "aq", "eq", "oq", "uq",
         // Numbers (0-9) as single characters
         "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
         // Special characters
@@ -144,18 +164,38 @@ class VietnameseTextInput {
 
         buffer.append(char)
 
-        if (applyCharModifiers()) {
+        if (applyCharModifiers(char)) {
             return buffer.toString()
         }
         return char.toString()
     }
 
-    private fun applyCharModifiers(): Boolean {
-        for ((pattern, replacement) in charModifiers) {
-            if (buffer.endsWith(pattern, true)) {
-                buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
-                Log.d("TelexInput", "Applied modifier: $buffer")
-                return true;
+    private fun applyCharModifiers(char: Char): Boolean {
+        Log.d("TelexInput", "applyCharModifiers buffer: $buffer")
+        // filter invalid char
+        if (char !in modifiableChars) {
+            return false
+        }
+
+        if (charModified) {
+            // reverse modify char
+            // âa --> aa
+            for ((pattern, replacement) in reverseCharModifier) {
+                if (buffer.endsWith(pattern, true)) {
+                    buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
+                    Log.d("TelexInput", "Applied modifier: $buffer")
+                    return true;
+                }
+            }
+        } else {
+            // aa --> â
+            for ((pattern, replacement) in charModifiers) {
+                if (buffer.endsWith(pattern, true)) {
+                    buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
+                    Log.d("TelexInput", "Applied modifier: $buffer")
+                    charModified = true
+                    return true;
+                }
             }
         }
         return false;
