@@ -3,6 +3,7 @@ import android.util.Log
 class VietnameseTextInput {
     private var buffer = StringBuilder()
     public var isReverseTone = false
+    public var toneAdded = false
 
     private val vowelMap = setOf(
         'a', 'ă', 'â', 'e', 'ê', 'i', 'o', 'ô', 'ơ', 'u', 'ư', 'y',
@@ -162,10 +163,11 @@ class VietnameseTextInput {
     private fun applyToneMark(toneMark: Char, originalChar: Char): String? {
         val lastVowelIndex = findFirstVowelIndex(buffer, toneMapping)
 
-        if (lastVowelIndex != -1) {
+        if (lastVowelIndex != -1 && !toneAdded) {
             val char = buffer[lastVowelIndex]
             Log.d("TelexInput", "Found a vowel! index: $lastVowelIndex")
             buffer.setCharAt(lastVowelIndex, getVowelWithTone(char, toneMark))
+            toneAdded = true
             return buffer.toString()
         }
 

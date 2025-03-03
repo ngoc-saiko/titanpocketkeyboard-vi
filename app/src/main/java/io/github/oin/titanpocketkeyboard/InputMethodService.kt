@@ -279,6 +279,8 @@ class InputMethodService : AndroidInputMethodService() {
 
 			consumeModifierNext()
 
+			vietnameseTelex.toneAdded = false
+
 			return super.onKeyDown(keyCode, event)
 		}
 
