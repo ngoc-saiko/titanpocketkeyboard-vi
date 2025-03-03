@@ -4,6 +4,7 @@ class VietnameseTextInput {
     private var buffer = StringBuilder()
     public var isReverseTone = false
     public var toneAdded = false
+    private var lastToneMark: Char? = null
 
     private val vowelMap = setOf(
         'a', 'ă', 'â', 'e', 'ê', 'i', 'o', 'ô', 'ơ', 'u', 'ư', 'y',
@@ -161,6 +162,10 @@ class VietnameseTextInput {
     }
 
     private fun applyToneMark(toneMark: Char, originalChar: Char): String? {
+        if (toneMark != lastToneMark && toneAdded) {
+            reverseTone(originalChar, false)
+            toneAdded = false
+        }
         val lastVowelIndex = findFirstVowelIndex(buffer, toneMapping)
 
         if (lastVowelIndex != -1 && !toneAdded) {
@@ -168,24 +173,35 @@ class VietnameseTextInput {
             Log.d("TelexInput", "Found a vowel! index: $lastVowelIndex")
             buffer.setCharAt(lastVowelIndex, getVowelWithTone(char, toneMark))
             toneAdded = true
+            lastToneMark = toneMark
             return buffer.toString()
         }
 
+        if (reverseTone(originalChar)) {
+            return buffer.toString()
+        }
+
+        buffer.append(originalChar)
+        return null
+    }
+
+    private fun reverseTone(originalChar: Char, willAddOriginal: Boolean = true): Boolean {
         for (i in buffer.indices) {  // Search for the last vowel
             val char = buffer[i]
 
             if (char in tonedVowelSet) {
                 Log.d("TelexInput", "Found a toned vowel! index: $i")
-                isReverseTone = true
                 // remove tone
                 val baseChar = removeToneMap[char] ?: char
                 buffer.setCharAt(i, baseChar)  // remove tone mark
-                buffer.append(originalChar)
-                return buffer.toString()
+                if (willAddOriginal) {
+                    isReverseTone = true
+                    buffer.append(originalChar)
+                }
+                return true
             }
         }
-        buffer.append(originalChar)
-        return null
+        return false
     }
 
     private fun getExistingTone(char: Char): Char? {
@@ -220,6 +236,8 @@ class VietnameseTextInput {
 
     fun reset() {
         buffer.clear()
+        toneAdded = false
+        lastToneMark = null
     }
 
     fun setBuffer(string: String) {
