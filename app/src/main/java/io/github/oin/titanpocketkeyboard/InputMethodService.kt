@@ -317,7 +317,6 @@ class InputMethodService : AndroidInputMethodService() {
 				return true // Stop further processing if permission is not granted
 			}
 
-			playNotificationSound()
 			isListening = true
 			Log.d("InputMethodService", "Started speech recognition")
 			speechRecognizer?.startListening(speechRecognizerIntent)
@@ -325,7 +324,6 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 
 		if (keyCode == KeyEvent.KEYCODE_SPACE && isListening) {
-			playNotificationSound()
 			speechRecognizer?.stopListening()
 			isListening = false  // Reset state after stopping
 			Log.d("InputMethodService", "Stopped speech recognition")
