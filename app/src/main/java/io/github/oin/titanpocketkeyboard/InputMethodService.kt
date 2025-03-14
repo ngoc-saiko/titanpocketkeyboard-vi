@@ -2,10 +2,15 @@ package io.github.oin.titanpocketkeyboard
 
 import VietnameseTextInput
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.InputType
 import android.text.TextUtils
 import android.util.Log
@@ -13,12 +18,19 @@ import android.view.InputDevice
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
+import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import java.util.Locale
 import android.inputmethodservice.InputMethodService as AndroidInputMethodService
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import android.widget.Toast
 
 // First, add this to your constants at the top of the file (alongside other MPSUBST constants)
 const val VIETNAMESE_TELEX_MODE = "VietnameseTelex"
+const val KEYCODE_FUNCTION = 289
 
 /**
  * @return true if it is suitable to provide suggestions or text transforms in the given editor.
@@ -167,6 +179,10 @@ class InputMethodService : AndroidInputMethodService() {
 		)
 	))
 
+	private var speechRecognizer: SpeechRecognizer? = null
+	private var speechRecognizerIntent: Intent? = null
+	private var isListening = false
+
 	override fun onCreate() {
 		super.onCreate()
 		vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -176,6 +192,61 @@ class InputMethodService : AndroidInputMethodService() {
 			updateFromPreferences()
 		}
 		updateFromPreferences()
+
+		speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+		speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+			putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+			putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN") // Vietnamese language
+			putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+		}
+
+		speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+			override fun onReadyForSpeech(params: Bundle?) {
+				Log.d("SpeechRecognizer", "Ready for speech")
+			}
+
+			override fun onBeginningOfSpeech() {
+				Log.d("SpeechRecognizer", "Speech started")
+			}
+
+			override fun onRmsChanged(rmsdB: Float) {
+				Log.d("SpeechRecognizer", "RMS changed: $rmsdB")
+			}
+
+			override fun onBufferReceived(buffer: ByteArray?) {
+				Log.d("SpeechRecognizer", "Buffer received")
+			}
+
+			override fun onEndOfSpeech() {
+				isListening = false
+				Log.d("SpeechRecognizer", "Speech ended")
+			}
+
+			override fun onError(error: Int) {
+				isListening = false
+				Log.e("SpeechRecognizer", "Error: $error")
+			}
+
+			override fun onResults(results: Bundle?) {
+				val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+				if (!matches.isNullOrEmpty()) {
+					val recognizedText = matches[0]
+					Log.d("SpeechRecognizer", "Recognized text: $recognizedText")
+					currentInputConnection?.commitText(recognizedText, 1)
+				}
+			}
+
+			override fun onPartialResults(partialResults: Bundle?) {
+				val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+				if (!matches.isNullOrEmpty()) {
+					Log.d("SpeechRecognizer", "Partial result: ${matches[0]}")
+				}
+			}
+
+			override fun onEvent(eventType: Int, params: Bundle?) {
+				Log.d("SpeechRecognizer", "Event: $eventType")
+			}
+		})
 	}
 
 	override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
@@ -229,6 +300,36 @@ class InputMethodService : AndroidInputMethodService() {
 			vibrate()
 			playNotificationSound()
 			return true  // Consume the event to prevent space input
+		}
+
+		if (keyCode == KEYCODE_FUNCTION && event.isLongPress && !isListening) {
+			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+				!= PackageManager.PERMISSION_GRANTED) {
+				Log.d("InputMethodService", "Request permission")
+
+				// Open Settings to grant permission manually
+				val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+				intent.data = Uri.parse("package:$packageName")
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+				startActivity(intent)
+
+				Toast.makeText(this, "Please grant microphone permission in Settings", Toast.LENGTH_LONG).show()
+				return true // Stop further processing if permission is not granted
+			}
+
+			playNotificationSound()
+			isListening = true
+			Log.d("InputMethodService", "Started speech recognition")
+			speechRecognizer?.startListening(speechRecognizerIntent)
+			return true // Consume the event
+		}
+
+		if (keyCode == KeyEvent.KEYCODE_SPACE && isListening) {
+			playNotificationSound()
+			speechRecognizer?.stopListening()
+			isListening = false  // Reset state after stopping
+			Log.d("InputMethodService", "Stopped speech recognition")
+			return true // Consume the event
 		}
 
 		// Update modifier states
@@ -474,6 +575,11 @@ class InputMethodService : AndroidInputMethodService() {
 		// The rest is ignored
 
 		return true
+	}
+
+	override fun onDestroy() {
+		super.onDestroy()
+		speechRecognizer?.destroy()
 	}
 
 	/**

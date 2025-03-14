@@ -1,15 +1,20 @@
 package io.github.oin.titanpocketkeyboard
 
 import android.content.DialogInterface
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
+import androidx.core.app.ActivityCompat
+import android.Manifest
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -23,6 +28,25 @@ class SettingsActivity : AppCompatActivity() {
 				.commit()
 		}
 		supportActionBar?.setDisplayHomeAsUpEnabled(true)
+		checkAndRequestPermission()
+	}
+
+	private fun checkAndRequestPermission() {
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+			!= PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+		}
+	}
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		if (requestCode == 1) {
+			if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				Toast.makeText(this, "Microphone permission granted", Toast.LENGTH_SHORT).show()
+			} else {
+				Toast.makeText(this, "Microphone permission is required for speech-to-text", Toast.LENGTH_LONG).show()
+			}
+		}
 	}
 
 	class SettingsFragment : PreferenceFragmentCompat() {
