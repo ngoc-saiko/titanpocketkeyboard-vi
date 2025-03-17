@@ -83,6 +83,20 @@ class VietnameseTextInput {
         "uw" to "ư", "Uw" to "Ư", "UW" to "Ư",
     )
 
+    private val wCharModifiers = mapOf(
+        "a" to "ă", "A" to "Ă",
+        "o" to "ơ", "O" to "Ơ",
+        "u" to "ư", "U" to "Ư",
+        "á" to "ắ", "à" to "ằ", "ả" to "ẳ", "ã" to "ẵ", "ạ" to "ặ",
+        "Á" to "Ắ", "À" to "Ằ", "Ả" to "Ẳ", "Ã" to "Ẵ", "Ạ" to "Ặ",
+
+        "ó" to "ớ", "ò" to "ờ", "ỏ" to "ở", "õ" to "ỡ", "ọ" to "ợ",
+        "Ó" to "Ớ", "Ò" to "Ờ", "Ỏ" to "Ở", "Õ" to "Ỡ", "Ọ" to "Ợ",
+
+        "ú" to "ứ", "ù" to "ừ", "ủ" to "ử", "ũ" to "ữ", "ụ" to "ự",
+        "Ú" to "Ứ", "Ù" to "Ừ", "Ủ" to "Ử", "Ũ" to "Ữ", "Ụ" to "Ự"
+    )
+
     private val reverseCharModifier = mapOf(
         "ăa" to "aa", "ăA" to "aA",
         "Ăa" to "Aa", "ĂA" to "AA",
@@ -165,12 +179,22 @@ class VietnameseTextInput {
 
         if (char in toneMarks.keys) return applyToneMark(toneMarks[char]!!, char)
 
+        if (char == 'w') {
+            val newStr = applyWCharModifiers()
+            if (buffer.toString() != newStr) return newStr
+        }
         buffer.append(char)
 
         if (applyCharModifiers(char)) {
             return buffer.toString()
         }
         return char.toString()
+    }
+
+    private fun applyWCharModifiers(): String {
+        return buffer.map { char ->
+            wCharModifiers[char.toString()] ?: char  // Replace if in map, else keep the same
+        }.joinToString("")
     }
 
     private fun applyCharModifiers(char: Char): Boolean {
