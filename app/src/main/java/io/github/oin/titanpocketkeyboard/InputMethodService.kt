@@ -24,8 +24,10 @@ import java.util.Locale
 import android.inputmethodservice.InputMethodService as AndroidInputMethodService
 import android.Manifest
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.provider.Settings
+import android.provider.UserDictionary
 import android.widget.Toast
 
 // First, add this to your constants at the top of the file (alongside other MPSUBST constants)
@@ -139,6 +141,7 @@ class InputMethodService : AndroidInputMethodService() {
 	private var lastSym = false
 
 	private var autoCapitalize = false
+	private var shortcutMap: Map<String, String> = emptyMap()
 
 	// Add this property to your class
 	private val vietnameseTelex = VietnameseTextInput()
@@ -251,7 +254,8 @@ class InputMethodService : AndroidInputMethodService() {
 
 	override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
 		super.onStartInput(attribute, restarting)
-
+		// Load shortcuts from preferences only once per session
+		shortcutMap = getStoredShortcuts()
 		updateFromPreferences()
 
 		// reset buffer
@@ -400,6 +404,17 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// Extract the word from the last space
 		val lastWord = textBeforeCursor.substringAfterLast(" ")
+		val lastWordLower = lastWord.lowercase()
+
+		// Load user-defined shortcuts
+//		val shortcutMap = getUserDictionaryShortcuts(this)
+		val fullText = shortcutMap[lastWordLower]
+
+		// If Enter is pressed and lastWord is a shortcut, replace it
+		if (keyCode == KeyEvent.KEYCODE_ENTER && fullText != null) {
+			replaceShortcutWithFullText(lastWord, fullText)
+			return true // Consume the event
+		}
 
 		// Set the extracted word to the buffer
 		vietnameseTelex.setBuffer(lastWord)
@@ -464,6 +479,45 @@ class InputMethodService : AndroidInputMethodService() {
 		}
 
 		return super.onKeyDown(keyCode, event)
+	}
+
+	private fun getStoredShortcuts(): Map<String, String> {
+		val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+		val rawText = prefs.getString("shortcuts_text", "") ?: ""
+
+		return rawText.lines()
+			.mapNotNull { line ->
+				val parts = line.split("##", limit = 2).map { it.trim() }
+				if (parts.size == 2) parts[0].lowercase() to parts[1] else null
+			}
+			.toMap()
+	}
+
+	fun getUserDictionaryShortcuts(context: Context): Map<String, String> {
+		val shortcuts = mutableMapOf<String, String>()
+		val cursor: Cursor? = context.contentResolver.query(
+			UserDictionary.Words.CONTENT_URI,
+			arrayOf(UserDictionary.Words.WORD, UserDictionary.Words.SHORTCUT),
+			null, null, null
+		)
+
+		cursor?.use {
+			while (it.moveToNext()) {
+				val word = it.getString(0) // Full text
+				val shortcut = it.getString(1) ?: ""
+				if (shortcut.isNotEmpty()) {
+					shortcuts[shortcut] = word
+				}
+			}
+		}
+
+		return shortcuts
+	}
+
+	fun replaceShortcutWithFullText(shortcut: String, fullText: String) {
+		val ic = currentInputConnection ?: return
+		ic.deleteSurroundingText(shortcut.length, 0) // Delete the shortcut
+		ic.commitText(fullText, 1) // Insert full text
 	}
 
 	override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {

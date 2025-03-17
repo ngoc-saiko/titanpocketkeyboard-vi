@@ -34,6 +34,13 @@
 			android:title="Only vowels"
 			android:summary="Disable multipress for consonants (like ç or ß)"
 			/>
+		<EditTextPreference
+			android:key="shortcuts_text"
+			android:title="Shortcuts"
+			android:summary="Edit your shortcut mappings (one per line)"
+			android:dialogTitle="Edit Shortcuts"
+			android:defaultValue=""
+			android:inputType="textMultiLine" />
 <!--		<ListPreference-->
 <!--			android:key="InputMode"-->
 <!--			android:title="Input Mode"-->
