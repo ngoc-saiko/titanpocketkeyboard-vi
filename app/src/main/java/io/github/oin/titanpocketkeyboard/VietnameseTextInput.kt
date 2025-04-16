@@ -114,6 +114,10 @@ class VietnameseTextInput {
         "Ưw" to "Uw", "ƯW" to "UW"
     )
 
+    private val toneMappingEnd = mapOf(
+        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "uy" to 'y'
+    )
+
     private val toneMapping = mapOf(
         'ă' to mapOf('\'' to 'ắ', '`' to 'ằ', '?' to 'ẳ', '~' to 'ẵ', '.' to 'ặ'),
         'Ă' to mapOf('\'' to 'Ắ', '`' to 'Ằ', '?' to 'Ẳ', '~' to 'Ẵ', '.' to 'Ặ'),
@@ -175,8 +179,11 @@ class VietnameseTextInput {
         if (invalidSequences.any { bufferStr.contains(it) }) {
             return char.toString()  // Return the original character as is
         }
+
+        // backspace
         if (char == '\b') return handleBackspace()
 
+        // thêm dấu
         if (char in toneMarks.keys) return applyToneMark(toneMarks[char]!!, char)
 
         if (char == 'w') {
@@ -185,6 +192,7 @@ class VietnameseTextInput {
         }
         buffer.append(char)
 
+        // aa --> â
         if (applyCharModifiers(char)) {
             return buffer.toString()
         }
@@ -312,9 +320,16 @@ class VietnameseTextInput {
     }
 
     private fun findFirstVowelIndex(buffer: StringBuilder, toneMapping: Map<Char, Map<Char, Char>>): Int {
-        for (key in toneMapping.keys) {  // Loop through vowels in toneMapping
-            val index = buffer.indexOf(key.toString()) // Search for the vowel in buffer
-            if (index != -1) return index // Return the first found index
+        Log.d("findFirstVowelIndex", "buffer: " + buffer.toString())
+        for (key in toneMappingEnd.keys) {
+            val index = buffer.indexOf(key)
+            Log.d("findFirstVowelIndex", "$key $index")
+            if (index != -1) return buffer.indexOf(toneMappingEnd[key].toString())
+        }
+        for (i in buffer.indices) {  // Search for the last vowel
+            val char = buffer[i]
+
+            if (char in vowelMap) return i;
         }
         return -1  // Return -1 if no vowel is found
     }
