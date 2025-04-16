@@ -185,6 +185,7 @@ class InputMethodService : AndroidInputMethodService() {
 	private var speechRecognizer: SpeechRecognizer? = null
 	private var speechRecognizerIntent: Intent? = null
 	private var isListening = false
+	private var restartSpeechRecognizer = false
 
 	override fun onCreate() {
 		super.onCreate()
@@ -195,7 +196,10 @@ class InputMethodService : AndroidInputMethodService() {
 			updateFromPreferences()
 		}
 		updateFromPreferences()
+		initSpeechRecornizer()
+	}
 
+	fun initSpeechRecornizer() {
 		speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
 		speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
 			putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -227,10 +231,12 @@ class InputMethodService : AndroidInputMethodService() {
 
 			override fun onError(error: Int) {
 				isListening = false
+				restartSpeechRecognizer = true
 				Log.e("SpeechRecognizer", "Error: $error")
 			}
 
 			override fun onResults(results: Bundle?) {
+				isListening = false
 				val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
 				if (!matches.isNullOrEmpty()) {
 					val recognizedText = matches[0]
@@ -306,6 +312,7 @@ class InputMethodService : AndroidInputMethodService() {
 			return true  // Consume the event to prevent space input
 		}
 
+		// speech to text
 		if (keyCode == KEYCODE_FUNCTION && event.isLongPress && !isListening) {
 			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
 				!= PackageManager.PERMISSION_GRANTED) {
@@ -320,6 +327,11 @@ class InputMethodService : AndroidInputMethodService() {
 				Toast.makeText(this, "Please grant microphone permission in Settings", Toast.LENGTH_LONG).show()
 				return true // Stop further processing if permission is not granted
 			}
+			if (restartSpeechRecognizer) {
+				speechRecognizer?.destroy()
+				speechRecognizer = null
+				initSpeechRecornizer()
+			}
 
 			isListening = true
 			Log.d("InputMethodService", "Started speech recognition")
@@ -329,7 +341,6 @@ class InputMethodService : AndroidInputMethodService() {
 
 		if (keyCode == KeyEvent.KEYCODE_SPACE && isListening) {
 			speechRecognizer?.stopListening()
-			isListening = false  // Reset state after stopping
 			Log.d("InputMethodService", "Stopped speech recognition")
 			return true // Consume the event
 		}
@@ -560,6 +571,41 @@ class InputMethodService : AndroidInputMethodService() {
 			}
 			updateStatusIconIfNeeded(true)
 			return true
+		}
+
+		if(event.keyCode == KeyEvent.KEYCODE_F && !isListening) {
+			// speech to text
+			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+				!= PackageManager.PERMISSION_GRANTED) {
+				Log.d("InputMethodService", "Request permission")
+
+				// Open Settings to grant permission manually
+				val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+				intent.data = Uri.parse("package:$packageName")
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+				startActivity(intent)
+
+				Toast.makeText(this, "Please grant microphone permission in Settings", Toast.LENGTH_LONG).show()
+				return true // Stop further processing if permission is not granted
+			}
+
+			if (restartSpeechRecognizer) {
+				speechRecognizer?.destroy()
+				speechRecognizer = null
+				initSpeechRecornizer()
+			}
+
+
+			isListening = true
+			Log.d("InputMethodService", "Started speech recognition")
+			speechRecognizer?.startListening(speechRecognizerIntent)
+			return true // Consume the event
+		}
+
+		if (event.keyCode == KeyEvent.KEYCODE_G && isListening) {
+			speechRecognizer?.stopListening()
+			Log.d("InputMethodService", "Stopped speech recognition")
+			return true // Consume the event
 		}
 
 		// Some keys simulate a D-Pad
