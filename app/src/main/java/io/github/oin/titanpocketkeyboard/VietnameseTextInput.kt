@@ -331,6 +331,9 @@ class VietnameseTextInput {
             // ignore prefix "gi"
             // to fix case Gía gìo gỉai gỉoi
             if (i < 2 && buffer.indices.count() > 2 && buffer[0].toLowerCase() == 'g' && buffer[1].toLowerCase() == 'i') continue
+            // ignore prefix "qu"
+            // to fix case qùây
+            if (i < 2 && buffer.indices.count() > 2 && buffer[0].toLowerCase() == 'q' && buffer[1].toLowerCase() == 'u') continue
 
             if (buffer[i] in vowelMap) return i;
         }
