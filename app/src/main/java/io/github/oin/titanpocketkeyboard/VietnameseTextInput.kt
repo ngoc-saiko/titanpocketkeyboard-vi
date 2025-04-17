@@ -115,7 +115,7 @@ class VietnameseTextInput {
     )
 
     private val toneMappingEnd = mapOf(
-        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "uy" to 'y', "oai" to 'a'
+        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "uy" to 'y', "oai" to 'a', "oa" to 'a'
     )
 
     private val toneMapping = mapOf(
