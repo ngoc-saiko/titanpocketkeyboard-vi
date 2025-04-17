@@ -115,7 +115,7 @@ class VietnameseTextInput {
     )
 
     private val toneMappingEnd = mapOf(
-        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "uy" to 'y'
+        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "uy" to 'y', "oai" to 'a'
     )
 
     private val toneMapping = mapOf(
@@ -320,16 +320,19 @@ class VietnameseTextInput {
     }
 
     private fun findFirstVowelIndex(buffer: StringBuilder, toneMapping: Map<Char, Map<Char, Char>>): Int {
-        Log.d("findFirstVowelIndex", "buffer: " + buffer.toString())
+        // special case where tone mark will be added at the specific position
         for (key in toneMappingEnd.keys) {
             val index = buffer.indexOf(key)
-            Log.d("findFirstVowelIndex", "$key $index")
             if (index != -1) return buffer.indexOf(toneMappingEnd[key].toString())
         }
-        for (i in buffer.indices) {  // Search for the last vowel
-            val char = buffer[i]
 
-            if (char in vowelMap) return i;
+        // search for the first vowel
+        for (i in buffer.indices) {
+            // ignore prefix "gi"
+            // to fix case Gía gìo gỉai gỉoi
+            if (i < 2 && buffer.indices.count() > 2 && buffer[0].toLowerCase() == 'g' && buffer[1].toLowerCase() == 'i') continue
+
+            if (buffer[i] in vowelMap) return i;
         }
         return -1  // Return -1 if no vowel is found
     }
