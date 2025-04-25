@@ -401,8 +401,8 @@ class InputMethodService : AndroidInputMethodService() {
 			consumeModifierNext()
 
 			vietnameseTelex.toneAdded = false
-
-			return super.onKeyDown(keyCode, event)
+			currentInputConnection?.finishComposingText()
+			return currentInputConnection?.deleteSurroundingText(1, 0) ?: false
 		}
 
 		// Ignore all long presses after this point
