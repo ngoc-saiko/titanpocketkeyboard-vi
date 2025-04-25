@@ -115,7 +115,7 @@ class VietnameseTextInput {
     )
 
     private val toneMappingEnd = mapOf(
-        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "uy" to 'y', "oai" to 'a', "oa" to 'a'
+        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "oai" to 'a', "oa" to 'a', "oă" to 'ă', "uâ" to 'â'
     )
 
     private val toneMapping = mapOf(
@@ -200,9 +200,13 @@ class VietnameseTextInput {
     }
 
     private fun applyWCharModifiers(): String {
-        return buffer.map { char ->
+        var result = buffer.map { char ->
             wCharModifiers[char.toString()] ?: char  // Replace if in map, else keep the same
         }.joinToString("")
+        if (result.contains("ơă")) {
+            result = result.replace("ơă", "oă")
+        }
+        return result;
     }
 
     private fun applyCharModifiers(char: Char): Boolean {
