@@ -117,7 +117,10 @@ class VietnameseTextInput {
     )
 
     private val toneMappingEnd = mapOf(
-        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "oai" to 'a', "oa" to 'a', "oă" to 'ă', "uâ" to 'â'
+        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "oai" to 'a', "oa" to 'a', "oă" to 'ă', "uâ" to 'â',
+        // FIX-03: bare "uo" diphthong — nucleus is the second vowel 'o', not 'u'.
+        // Mirrors the pattern of "oa"→'a', "oe"→'e' where the non-'u'/'i' vowel is the nucleus.
+        "uo" to 'o'
     )
 
     private val toneMapping = mapOf(
