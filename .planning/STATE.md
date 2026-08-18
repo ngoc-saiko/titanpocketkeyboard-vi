@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 01
-current_phase_name: test-infrastructure
+current_phase: 02
+current_phase_name: unit-test-suite
 status: executing
-stopped_at: Roadmap and state files created; REQUIREMENTS.md traceability updated
-last_updated: "2026-08-18T03:24:27.996Z"
+stopped_at: Completed 02-01-PLAN.md — ToneMarkTracerTest tracer
+last_updated: "2026-08-18T04:12:44.968Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 01 execution started
 progress:
-  total_phases: 1
+  total_phases: 2
   completed_phases: 0
-  total_plans: 1
-  completed_plans: 0
+  total_plans: 5
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** Vietnamese input must be accurate and predictable — every key sequence produces the correct character, every time, on any input field.
-**Current focus:** Phase 01 — test-infrastructure
+**Current focus:** Phase 02 — unit-test-suite
 
 ## Current Position
 
-Phase: 01 (test-infrastructure) — EXECUTING
-Plan: 1 of 1
-Status: Executing Phase 01
-Last activity: 2026-08-18 — Phase 01 execution started
+Phase: 02 (unit-test-suite) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-08-18 — Phase 02 execution started
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
@@ -54,6 +54,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 02-unit-test-suite P01 | 4m | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -65,6 +70,8 @@ Recent decisions affecting current work:
 - Init: Fix CONCERNS before new features — known bugs compound; unit tests on broken logic are misleading
 - Init: Unit test VietnameseTextInput first — core composition logic is highest risk, zero coverage
 - Init: Write tests against correct Telex spec (not current behavior), observe failures, then fix
+- [Phase ?]: Immediate onKeyUp sets next=true (not cleared); get() remains true until nextDidConsume() — Modifier hold-tap lifecycle boundary documented in test
+- [Phase ?]: processKey('a') returns char.toString() 'a' — bare vowel commits immediately rather than buffering silently
 
 ### Pending Todos
 
@@ -90,6 +97,6 @@ Items acknowledged and carried forward (v2 scope):
 
 ## Session Continuity
 
-Last session: 2026-08-18
-Stopped at: Roadmap and state files created; REQUIREMENTS.md traceability updated
+Last session: 2026-08-18T04:12:44.962Z
+Stopped at: Completed 02-01-PLAN.md — ToneMarkTracerTest tracer
 Resume file: None

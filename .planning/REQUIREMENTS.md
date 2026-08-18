@@ -13,7 +13,7 @@
 
 ### Unit Tests — VietnameseTextInput
 
-- [ ] **TEST-01**: Parameterized tests cover all tone mark forward transforms (s→sắc, f→huyền, r→hỏi, x→ngã, j→nặng) applied to all vowel types
+- [x] **TEST-01**: Parameterized tests cover all tone mark forward transforms (s→sắc, f→huyền, r→hỏi, x→ngã, j→nặng) applied to all vowel types
 - [ ] **TEST-02**: Parameterized tests cover vowel modifier forward transforms (aw→ă, aa→â, ow→ơ, oo→ô, uw→ư, ew→ê, dd→đ)
 - [ ] **TEST-03**: Parameterized tests cover Telex revert sequences — typing the modifier key a second time reverts to the literal characters (e.g. `ow` → `ơ`, then `w` again → `ow`)
 - [ ] **TEST-04**: Parameterized tests cover `invalidSequences` passthrough — invalid Vietnamese combinations are passed through unchanged
@@ -21,7 +21,7 @@
 
 ### Unit Tests — Modifier
 
-- [ ] **TEST-06**: State-machine tests cover Modifier hold mode — Alt held for duration applies metaState, releasing removes it
+- [x] **TEST-06**: State-machine tests cover Modifier hold mode — Alt held for duration applies metaState, releasing removes it
 - [ ] **TEST-07**: State-machine tests cover Modifier one-shot mode — press+release then next key gets metaState, subsequent key does not
 - [ ] **TEST-08**: State-machine tests cover Modifier lock mode — double-tap locks; all subsequent keys get metaState until unlocked
 - [ ] **TEST-09**: Tests verify `nextDidConsume()` correctly clears the one-shot state
@@ -78,12 +78,12 @@
 | INFRA-01 | Phase 1 | Pending |
 | INFRA-02 | Phase 1 | Pending |
 | INFRA-03 | Phase 1 | Pending |
-| TEST-01 | Phase 2 | Pending |
+| TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 2 | Pending |
 | TEST-03 | Phase 2 | Pending |
 | TEST-04 | Phase 2 | Pending |
 | TEST-05 | Phase 2 | Pending |
-| TEST-06 | Phase 2 | Pending |
+| TEST-06 | Phase 2 | Complete |
 | TEST-07 | Phase 2 | Pending |
 | TEST-08 | Phase 2 | Pending |
 | TEST-09 | Phase 2 | Pending |
@@ -102,6 +102,7 @@
 | FIX-10 | Phase 3 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 23 total
 - Mapped to phases: 23
 - Unmapped: 0 ✓
