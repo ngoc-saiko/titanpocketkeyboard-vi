@@ -14,7 +14,7 @@
 ### Unit Tests — VietnameseTextInput
 
 - [x] **TEST-01**: Parameterized tests cover all tone mark forward transforms (s→sắc, f→huyền, r→hỏi, x→ngã, j→nặng) applied to all vowel types
-- [ ] **TEST-02**: Parameterized tests cover vowel modifier forward transforms (aw→ă, aa→â, ow→ơ, oo→ô, uw→ư, ew→ê, dd→đ)
+- [x] **TEST-02**: Parameterized tests cover vowel modifier forward transforms (aw→ă, aa→â, ow→ơ, oo→ô, uw→ư, ew→ê, dd→đ)
 - [ ] **TEST-03**: Parameterized tests cover Telex revert sequences — typing the modifier key a second time reverts to the literal characters (e.g. `ow` → `ơ`, then `w` again → `ow`)
 - [ ] **TEST-04**: Parameterized tests cover `invalidSequences` passthrough — invalid Vietnamese combinations are passed through unchanged
 - [ ] **TEST-05**: Tests confirm tone mark is placed on the correct vowel in multi-vowel syllables (quality-diacritic wins; diphthong table for bare vowels)
@@ -79,7 +79,7 @@
 | INFRA-02 | Phase 1 | Pending |
 | INFRA-03 | Phase 1 | Pending |
 | TEST-01 | Phase 2 | Complete |
-| TEST-02 | Phase 2 | Pending |
+| TEST-02 | Phase 2 | Complete |
 | TEST-03 | Phase 2 | Pending |
 | TEST-04 | Phase 2 | Pending |
 | TEST-05 | Phase 2 | Pending |
