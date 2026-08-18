@@ -120,7 +120,13 @@ class VietnameseTextInput {
         "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "oai" to 'a', "oa" to 'a', "oă" to 'ă', "uâ" to 'â',
         // FIX-03: bare "uo" diphthong — nucleus is the second vowel 'o', not 'u'.
         // Mirrors the pattern of "oa"→'a', "oe"→'e' where the non-'u'/'i' vowel is the nucleus.
-        "uo" to 'o'
+        "uo" to 'o',
+        // yeu-tone-mark-wrong-vowel: word-initial "yê" cluster (yêu, yết, yếm, yên).
+        // Nucleus is the hat/whisker vowel 'ê', not the semivowel 'y' — same rule as "iê"→'ê'.
+        // Without this, findFirstVowelIndex falls to the first-vowel scan and mislays the tone
+        // on 'y' (e.g. "yeu"+sắc → "ýêu" instead of "yếu").
+        // Placed AFTER "uyê" so triphthong "uyê" (khuyên/tuyên) keeps precedence; both map to 'ê'.
+        "yê" to 'ê'
     )
 
     private val toneMapping = mapOf(

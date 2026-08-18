@@ -453,6 +453,82 @@ class TonePlacementTest {
         val result = vti.processKey('s')
         assertEquals("qua+s: qu-prefix skip, tone on a giving quá", "quá", result)
     }
+
+    // -----------------------------------------------------------------------
+    // Regression: yeu-tone-mark-wrong-vowel — "yê" cluster nucleus is 'ê', not 'y'.
+    // toneMappingEnd["yê"]='ê'. Before the fix, RULE B placed the tone on 'y' → "ýêu".
+    // Oracle: derived (Vietnamese orthography — tone lands on the hat/whisker vowel 'ê').
+    // -----------------------------------------------------------------------
+
+    /**
+     * Reported case: typing y,e,e,u composes buffer "yêu" (ee→ê), then 's' applies sắc.
+     * Correct: tone on nucleus 'ê' → "yếu". Was "ýêu" before the fix.
+     * This exercises the full processKey input path, not just a preloaded buffer.
+     */
+    @Test
+    fun tonePlacement_yeu_fullPath_toneOnE() {
+        val vti = VietnameseTextInput()
+        vti.processKey('y')
+        vti.processKey('e')
+        vti.processKey('e')   // ee → ê, buffer "yê"
+        vti.processKey('u')   // buffer "yêu"
+        val result = vti.processKey('s')
+        assertEquals("yeu(full path)+s: nucleus ê giving yếu", "yếu", result)
+    }
+
+    /** Boundary: open-syllable "yêu" preloaded + all 5 tone marks land on 'ê'. */
+    @Test
+    fun tonePlacement_yeu_allFiveTones() {
+        val cases = mapOf('s' to "yếu", 'f' to "yều", 'r' to "yểu", 'x' to "yễu", 'j' to "yệu")
+        for ((toneKey, expected) in cases) {
+            val vti = VietnameseTextInput()
+            vti.setBuffer("yêu")
+            val result = vti.processKey(toneKey)
+            assertEquals("yêu+$toneKey: tone on nucleus ê", expected, result)
+        }
+    }
+
+    /** Boundary: closed-syllable "yêt" (yết) — nucleus still 'ê' → "yết". */
+    @Test
+    fun tonePlacement_yet_closedSyllable_toneOnE() {
+        val vti = VietnameseTextInput()
+        vti.setBuffer("yêt")
+        val result = vti.processKey('s')
+        assertEquals("yêt+s: closed syllable, tone on ê giving yết", "yết", result)
+    }
+
+    /** Boundary: "yên" (yến) — nucleus 'ê' → "yến". */
+    @Test
+    fun tonePlacement_yen_toneOnE() {
+        val vti = VietnameseTextInput()
+        vti.setBuffer("yên")
+        val result = vti.processKey('s')
+        assertEquals("yên+s: tone on ê giving yến", "yến", result)
+    }
+
+    /**
+     * Regression guard: labialized triphthong "uyê" (khuyên/tuyên) contains "yê" as a substring.
+     * "uyê" must keep precedence and still resolve to nucleus 'ê'. Both map to 'ê', so the
+     * fix must not disturb this. Buffer "khuyê" + 's' → "khuyế".
+     */
+    @Test
+    fun tonePlacement_uye_triphthong_stillToneOnE() {
+        val vti = VietnameseTextInput()
+        vti.setBuffer("khuyê")
+        val result = vti.processKey('s')
+        assertEquals("khuyê+s: triphthong nucleus ê giving khuyế", "khuyế", result)
+    }
+
+    /**
+     * Regression guard: the analogous "iê" cluster (tiên) must remain unaffected — tone on 'ê'.
+     */
+    @Test
+    fun tonePlacement_ie_stillToneOnE() {
+        val vti = VietnameseTextInput()
+        vti.setBuffer("tiê")
+        val result = vti.processKey('s')
+        assertEquals("tiê+s: nucleus ê giving tiế", "tiế", result)
+    }
 }
 
 // ---------------------------------------------------------------------------
