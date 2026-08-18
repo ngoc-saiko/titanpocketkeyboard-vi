@@ -48,7 +48,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. State-machine tests exist for Modifier hold, one-shot, and lock modes, including the specific sequence (Alt tap → non-transforming key → no metaState) that exposes the Alt one-shot bug in Vietnamese mode
   5. Tests exist for MultipressController consonant filtering, character substitution sequences, and `applyWCharModifiers()` last-character-only behavior
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — End-to-end tracer: tone mark and Modifier hold tests proving both classes importable
+- [ ] 02-02-PLAN.md — VietnameseTextInput full test suite: tone marks, vowel modifiers, reverts, invalidSequences, tone placement, applyWCharModifiers
+- [ ] 02-03-PLAN.md — Modifier state-machine tests and MultipressController consonant filtering and substitution tests
 
 ### Phase 3: Bug Fixes and Cleanup
 
