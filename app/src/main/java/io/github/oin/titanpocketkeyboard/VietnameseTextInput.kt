@@ -1,3 +1,5 @@
+package io.github.oin.titanpocketkeyboard
+
 import android.util.Log
 
 class VietnameseTextInput {
