@@ -34,7 +34,7 @@
 
 ### Bug Fixes
 
-- [ ] **FIX-01**: `ơ + w` produces `ow` (not `ơw`) — fix `applyCharModifiers()` to set `charModified = true` for `w`-triggered transforms so the revert path fires correctly
+- [x] **FIX-01**: `ơ + w` produces `ow` (not `ơw`) — fix `applyCharModifiers()` to set `charModified = true` for `w`-triggered transforms so the revert path fires correctly
 - [x] **FIX-02**: Alt one-shot works in Vietnamese mode on all input field types — fix `onKeyDown()` to call `consumeModifierNext()` before the Telex gate, not after
 - [x] **FIX-03**: Tone marks are placed on the correct vowel in multi-vowel syllables — replace `findFirstVowelIndex()` logic with quality-diacritic priority rule followed by the diphthong table
 - [x] **FIX-04**: `VietnameseTextInput.applyWCharModifiers()` only modifies the last w-mappable vowel in the buffer, not all occurrences
@@ -90,7 +90,7 @@
 | TEST-10 | Phase 2 | Complete |
 | TEST-11 | Phase 2 | Complete |
 | TEST-12 | Phase 2 | Complete |
-| FIX-01 | Phase 3 | Pending |
+| FIX-01 | Phase 3 | Complete |
 | FIX-02 | Phase 3 | Complete |
 | FIX-03 | Phase 3 | Complete |
 | FIX-04 | Phase 3 | Complete |
