@@ -177,17 +177,14 @@ class VietnameseTextInput {
         if (char !in modifiableChars && char !in toneMarks.keys) {
             return char.toString()  // Return the original character as is
         }
-        // Check if the buffer contains any invalid sequences
-        if (invalidSequences.any { bufferStr.contains(it) }) {
-            return char.toString()  // Return the original character as is
-        }
 
         // backspace
         if (char == '\b') return handleBackspace()
 
-        // thêm dấu
-        if (char in toneMarks.keys) return applyToneMark(toneMarks[char]!!, char)
-
+        // FIX-04: apply w-modifier BEFORE the invalidSequences guard so that pressing 'w'
+        // can transform a buffered vowel (e.g. "aa"+w → "aă") even when the buffer itself
+        // contains a sequence in the blacklist. 'w' is a buffer-level modifier, not a new
+        // character being appended, so the invalidSequences check is not applicable to it.
         if (char == 'w') {
             val newStr = applyWCharModifiers()
             if (buffer.toString() != newStr) {
@@ -196,6 +193,15 @@ class VietnameseTextInput {
                 return newStr
             }
         }
+
+        // Check if the buffer contains any invalid sequences
+        if (invalidSequences.any { bufferStr.contains(it) }) {
+            return char.toString()  // Return the original character as is
+        }
+
+        // thêm dấu
+        if (char in toneMarks.keys) return applyToneMark(toneMarks[char]!!, char)
+
         buffer.append(char)
 
         // aa --> â
@@ -206,13 +212,18 @@ class VietnameseTextInput {
     }
 
     private fun applyWCharModifiers(): String {
-        var result = buffer.map { char ->
-            wCharModifiers[char.toString()] ?: char  // Replace if in map, else keep the same
-        }.joinToString("")
-        if (result.contains("ơă")) {
-            result = result.replace("ơă", "oă")
+        // FIX-04: transform only the LAST w-mappable vowel in the buffer.
+        // Scan from the end toward the start; replace the first matching vowel found and stop.
+        val chars = buffer.toMutableList()
+        for (i in chars.indices.reversed()) {
+            val mapped = wCharModifiers[chars[i].toString()]
+            if (mapped != null) {
+                chars[i] = mapped[0]  // wCharModifiers values are single-char strings
+                return chars.joinToString("")
+            }
         }
-        return result;
+        // No w-mappable vowel found — return buffer unchanged so the guard in processKey fires correctly
+        return buffer.toString()
     }
 
     private fun applyCharModifiers(char: Char): Boolean {
