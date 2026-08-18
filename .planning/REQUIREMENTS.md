@@ -15,9 +15,9 @@
 
 - [x] **TEST-01**: Parameterized tests cover all tone mark forward transforms (s→sắc, f→huyền, r→hỏi, x→ngã, j→nặng) applied to all vowel types
 - [x] **TEST-02**: Parameterized tests cover vowel modifier forward transforms (aw→ă, aa→â, ow→ơ, oo→ô, uw→ư, ew→ê, dd→đ)
-- [ ] **TEST-03**: Parameterized tests cover Telex revert sequences — typing the modifier key a second time reverts to the literal characters (e.g. `ow` → `ơ`, then `w` again → `ow`)
-- [ ] **TEST-04**: Parameterized tests cover `invalidSequences` passthrough — invalid Vietnamese combinations are passed through unchanged
-- [ ] **TEST-05**: Tests confirm tone mark is placed on the correct vowel in multi-vowel syllables (quality-diacritic wins; diphthong table for bare vowels)
+- [x] **TEST-03**: Parameterized tests cover Telex revert sequences — typing the modifier key a second time reverts to the literal characters (e.g. `ow` → `ơ`, then `w` again → `ow`)
+- [x] **TEST-04**: Parameterized tests cover `invalidSequences` passthrough — invalid Vietnamese combinations are passed through unchanged
+- [x] **TEST-05**: Tests confirm tone mark is placed on the correct vowel in multi-vowel syllables (quality-diacritic wins; diphthong table for bare vowels)
 
 ### Unit Tests — Modifier
 
@@ -30,7 +30,7 @@
 
 - [x] **TEST-10**: Tests cover consonant filtering — consonant keys do not trigger vowel-modifier substitution
 - [x] **TEST-11**: Tests cover multipress character substitution sequences using the template system
-- [ ] **TEST-12**: Tests verify `applyWCharModifiers()` only transforms the last character, not the entire buffer
+- [x] **TEST-12**: Tests verify `applyWCharModifiers()` only transforms the last character, not the entire buffer
 
 ### Bug Fixes
 
@@ -80,16 +80,16 @@
 | INFRA-03 | Phase 1 | Pending |
 | TEST-01 | Phase 2 | Complete |
 | TEST-02 | Phase 2 | Complete |
-| TEST-03 | Phase 2 | Pending |
-| TEST-04 | Phase 2 | Pending |
-| TEST-05 | Phase 2 | Pending |
+| TEST-03 | Phase 2 | Complete |
+| TEST-04 | Phase 2 | Complete |
+| TEST-05 | Phase 2 | Complete |
 | TEST-06 | Phase 2 | Complete |
 | TEST-07 | Phase 2 | Complete |
 | TEST-08 | Phase 2 | Complete |
 | TEST-09 | Phase 2 | Complete |
 | TEST-10 | Phase 2 | Complete |
 | TEST-11 | Phase 2 | Complete |
-| TEST-12 | Phase 2 | Pending |
+| TEST-12 | Phase 2 | Complete |
 | FIX-01 | Phase 3 | Pending |
 | FIX-02 | Phase 3 | Pending |
 | FIX-03 | Phase 3 | Pending |
