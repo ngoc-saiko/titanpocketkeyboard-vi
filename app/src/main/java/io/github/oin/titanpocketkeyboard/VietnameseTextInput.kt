@@ -153,7 +153,56 @@ class VietnameseTextInput {
     // Set of characters that should not trigger Telex transformations
     private val ignoredChars = setOf('z')
 
-    // List of invalid sequences that should prevent Telex processing
+    /**
+     * Blacklist of buffer substrings that indicate the current composition cannot be a valid
+     * Vietnamese Telex syllable. When [processKey] detects that the buffer contains any entry
+     * from this list, it passes the incoming character through unchanged (returns
+     * `char.toString()`) instead of applying Telex transforms — effectively committing the raw
+     * keystroke and abandoning composition mode for that syllable.
+     *
+     * Consumer: [processKey] line — `if (invalidSequences.any { bufferStr.contains(it) })`.
+     *
+     * **Rationale for each group:**
+     *
+     * - **Single invalid letters** (`f`, `w`, `z`, `j`): these letters either have no Vietnamese
+     *   phoneme (f, z, j are not native Vietnamese consonants) or are Telex modifier keys that
+     *   should not start a syllable on their own (w). If one of them appears as the only content
+     *   of the buffer, Telex transformation is meaningless.
+     *
+     * - **Consonant clusters not found in Vietnamese** (`pr`, `pl`, `kr`, `kl`, `br`, `bl`,
+     *   `gr`, `vl`, `rr`, `ps`): Vietnamese onset consonants are either single letters or
+     *   digraphs/trigraphs defined by the language (e.g. `ch`, `nh`, `tr`, `ng`). These
+     *   clusters are borrowed phonotactic patterns from other languages and cannot form a
+     *   Vietnamese syllable onset, so no Telex transform should be attempted.
+     *
+     * - **Other invalid combinations** (`aa`, `ee`, `ih`, `ah`, `eh`, `oh`, `uh`,
+     *   `il`, `al`, `el`, `ol`, `ul`, `iq`, `aq`, `eq`, `oq`, `uq`, `nd`,
+     *   `ar`, `or`, `ir`, `ur`, `er`, `av`, `ev`, `uv`, `iv`, `ou`):
+     *   sequences of vowels or coda consonants that do not correspond to any Vietnamese
+     *   syllable nucleus or rime. For example, `ou` is an English diphthong but not
+     *   a Vietnamese one; `ar`/`or`/`er` are English rhotic rimes with no Vietnamese
+     *   equivalent; `nd` is a consonant cluster that never appears word-initially in Vietnamese.
+     *   These would otherwise trigger spurious Telex transforms on non-Vietnamese words or
+     *   typing errors.
+     *
+     * - **Numerals** (`0`–`9`): digit characters are never part of a Vietnamese syllable.
+     *   Blocking ensures that Telex mode does not attempt to interpret a number as a
+     *   tone or modifier key press.
+     *
+     * - **Special characters** (punctuation, symbols): similar to numerals, these cannot
+     *   appear inside a Vietnamese syllable and must be passed through verbatim so the user
+     *   can type punctuation normally without triggering Telex composition.
+     *
+     * **FIX-10 note (Phase 3, Plan 02):** this list is a pragmatic v1 blacklist. It covers
+     * the most common non-Vietnamese sequences encountered in mixed-language typing on the
+     * Titan Pocket hardware keyboard. False positives (valid sequences accidentally blocked)
+     * should be removed from the list; false negatives (invalid sequences not yet blocked) can
+     * be appended.
+     *
+     * **FEAT-01 (v2, deferred):** the planned successor is a rule-based phonetic validator
+     * that derives allowed sequences from Vietnamese phonotactics instead of maintaining an
+     * explicit blacklist. See REQUIREMENTS.md FEAT-01 for scope and deferral rationale.
+     */
     private val invalidSequences = listOf(
         // Single invalid letters
         "f", "w", "z", "j",
