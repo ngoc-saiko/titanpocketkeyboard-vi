@@ -70,7 +70,14 @@ Plans:
   4. `applyWCharModifiers()` modifies only the last w-mappable vowel; `deleteLength` calculation does not leave text remnants after multi-character Telex replacements
   5. `speechRecognizer` access paths have null-safety checks; microphone permission requests are consolidated to a single location; `MPSUBST_*` constants and `invalidSequences` are documented with rationale
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+
+- [ ] 03-01-PLAN.md — Tracer: fix FIX-01 w/d revert (charModified) in VietnameseTextInput; 3 RED revert tests turn green
+- [ ] 03-02-PLAN.md — FIX-03 (nucleus tone placement), FIX-04 (last-vowel w-modifier), FIX-10 (document invalidSequences); remaining 3 RED tests turn green
+- [ ] 03-03-PLAN.md — FIX-02 (Alt one-shot before Telex gate), FIX-05 (bounded deleteLength), FIX-06 (null-safe speechRecognizer), FIX-07 (consolidated mic permission) in InputMethodService
+- [ ] 03-04-PLAN.md — FIX-08 (data-driven consonant set), FIX-09 (document MPSUBST_* constants) in MultipressController
 
 ## Progress
 
@@ -81,4 +88,4 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Test Infrastructure | 1/1 | Complete   | 2026-08-18 |
 | 2. Unit Test Suite | 4/4 | In Progress|  |
-| 3. Bug Fixes and Cleanup | 0/? | Not started | - |
+| 3. Bug Fixes and Cleanup | 0/4 | Planned | - |
