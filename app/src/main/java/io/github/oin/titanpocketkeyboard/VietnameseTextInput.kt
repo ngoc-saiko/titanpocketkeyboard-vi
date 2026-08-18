@@ -1,3 +1,5 @@
+package io.github.oin.titanpocketkeyboard
+
 import android.util.Log
 
 class VietnameseTextInput {
@@ -12,7 +14,7 @@ class VietnameseTextInput {
         'A', 'Ă', 'Â', 'E', 'Ê', 'I', 'O', 'Ô', 'Ơ', 'U', 'Ư', 'Y'
     )
 
-    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'd', 'w')
+    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'y', 'd', 'w')
 
     private val tonedVowelSet = setOf(
         'á', 'à', 'ả', 'ã', 'ạ', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ',
@@ -115,7 +117,16 @@ class VietnameseTextInput {
     )
 
     private val toneMappingEnd = mapOf(
-        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "oai" to 'a', "oa" to 'a', "oă" to 'ă', "uâ" to 'â'
+        "ươ" to 'ơ', "iê" to 'ê', "uô" to 'ô', "oe" to 'e', "uyê" to 'ê', "oai" to 'a', "oa" to 'a', "oă" to 'ă', "uâ" to 'â',
+        // FIX-03: bare "uo" diphthong — nucleus is the second vowel 'o', not 'u'.
+        // Mirrors the pattern of "oa"→'a', "oe"→'e' where the non-'u'/'i' vowel is the nucleus.
+        "uo" to 'o',
+        // yeu-tone-mark-wrong-vowel: word-initial "yê" cluster (yêu, yết, yếm, yên).
+        // Nucleus is the hat/whisker vowel 'ê', not the semivowel 'y' — same rule as "iê"→'ê'.
+        // Without this, findFirstVowelIndex falls to the first-vowel scan and mislays the tone
+        // on 'y' (e.g. "yeu"+sắc → "ýêu" instead of "yếu").
+        // Placed AFTER "uyê" so triphthong "uyê" (khuyên/tuyên) keeps precedence; both map to 'ê'.
+        "yê" to 'ê'
     )
 
     private val toneMapping = mapOf(
@@ -148,7 +159,56 @@ class VietnameseTextInput {
     // Set of characters that should not trigger Telex transformations
     private val ignoredChars = setOf('z')
 
-    // List of invalid sequences that should prevent Telex processing
+    /**
+     * Blacklist of buffer substrings that indicate the current composition cannot be a valid
+     * Vietnamese Telex syllable. When [processKey] detects that the buffer contains any entry
+     * from this list, it passes the incoming character through unchanged (returns
+     * `char.toString()`) instead of applying Telex transforms — effectively committing the raw
+     * keystroke and abandoning composition mode for that syllable.
+     *
+     * Consumer: [processKey] line — `if (invalidSequences.any { bufferStr.contains(it) })`.
+     *
+     * **Rationale for each group:**
+     *
+     * - **Single invalid letters** (`f`, `w`, `z`, `j`): these letters either have no Vietnamese
+     *   phoneme (f, z, j are not native Vietnamese consonants) or are Telex modifier keys that
+     *   should not start a syllable on their own (w). If one of them appears as the only content
+     *   of the buffer, Telex transformation is meaningless.
+     *
+     * - **Consonant clusters not found in Vietnamese** (`pr`, `pl`, `kr`, `kl`, `br`, `bl`,
+     *   `gr`, `vl`, `rr`, `ps`): Vietnamese onset consonants are either single letters or
+     *   digraphs/trigraphs defined by the language (e.g. `ch`, `nh`, `tr`, `ng`). These
+     *   clusters are borrowed phonotactic patterns from other languages and cannot form a
+     *   Vietnamese syllable onset, so no Telex transform should be attempted.
+     *
+     * - **Other invalid combinations** (`aa`, `ee`, `ih`, `ah`, `eh`, `oh`, `uh`,
+     *   `il`, `al`, `el`, `ol`, `ul`, `iq`, `aq`, `eq`, `oq`, `uq`, `nd`,
+     *   `ar`, `or`, `ir`, `ur`, `er`, `av`, `ev`, `uv`, `iv`, `ou`):
+     *   sequences of vowels or coda consonants that do not correspond to any Vietnamese
+     *   syllable nucleus or rime. For example, `ou` is an English diphthong but not
+     *   a Vietnamese one; `ar`/`or`/`er` are English rhotic rimes with no Vietnamese
+     *   equivalent; `nd` is a consonant cluster that never appears word-initially in Vietnamese.
+     *   These would otherwise trigger spurious Telex transforms on non-Vietnamese words or
+     *   typing errors.
+     *
+     * - **Numerals** (`0`–`9`): digit characters are never part of a Vietnamese syllable.
+     *   Blocking ensures that Telex mode does not attempt to interpret a number as a
+     *   tone or modifier key press.
+     *
+     * - **Special characters** (punctuation, symbols): similar to numerals, these cannot
+     *   appear inside a Vietnamese syllable and must be passed through verbatim so the user
+     *   can type punctuation normally without triggering Telex composition.
+     *
+     * **FIX-10 note (Phase 3, Plan 02):** this list is a pragmatic v1 blacklist. It covers
+     * the most common non-Vietnamese sequences encountered in mixed-language typing on the
+     * Titan Pocket hardware keyboard. False positives (valid sequences accidentally blocked)
+     * should be removed from the list; false negatives (invalid sequences not yet blocked) can
+     * be appended.
+     *
+     * **FEAT-01 (v2, deferred):** the planned successor is a rule-based phonetic validator
+     * that derives allowed sequences from Vietnamese phonotactics instead of maintaining an
+     * explicit blacklist. See REQUIREMENTS.md FEAT-01 for scope and deferral rationale.
+     */
     private val invalidSequences = listOf(
         // Single invalid letters
         "f", "w", "z", "j",
@@ -175,21 +235,31 @@ class VietnameseTextInput {
         if (char !in modifiableChars && char !in toneMarks.keys) {
             return char.toString()  // Return the original character as is
         }
+
+        // backspace
+        if (char == '\b') return handleBackspace()
+
+        // FIX-04: apply w-modifier BEFORE the invalidSequences guard so that pressing 'w'
+        // can transform a buffered vowel (e.g. "aa"+w → "aă") even when the buffer itself
+        // contains a sequence in the blacklist. 'w' is a buffer-level modifier, not a new
+        // character being appended, so the invalidSequences check is not applicable to it.
+        if (char == 'w') {
+            val newStr = applyWCharModifiers()
+            if (buffer.toString() != newStr) {
+                setBuffer(newStr)
+                charModified = true
+                return newStr
+            }
+        }
+
         // Check if the buffer contains any invalid sequences
         if (invalidSequences.any { bufferStr.contains(it) }) {
             return char.toString()  // Return the original character as is
         }
 
-        // backspace
-        if (char == '\b') return handleBackspace()
-
         // thêm dấu
         if (char in toneMarks.keys) return applyToneMark(toneMarks[char]!!, char)
 
-        if (char == 'w') {
-            val newStr = applyWCharModifiers()
-            if (buffer.toString() != newStr) return newStr
-        }
         buffer.append(char)
 
         // aa --> â
@@ -200,13 +270,18 @@ class VietnameseTextInput {
     }
 
     private fun applyWCharModifiers(): String {
-        var result = buffer.map { char ->
-            wCharModifiers[char.toString()] ?: char  // Replace if in map, else keep the same
-        }.joinToString("")
-        if (result.contains("ơă")) {
-            result = result.replace("ơă", "oă")
+        // FIX-04: transform only the LAST w-mappable vowel in the buffer.
+        // Scan from the end toward the start; replace the first matching vowel found and stop.
+        val chars = buffer.toMutableList()
+        for (i in chars.indices.reversed()) {
+            val mapped = wCharModifiers[chars[i].toString()]
+            if (mapped != null) {
+                chars[i] = mapped[0]  // wCharModifiers values are single-char strings
+                return chars.joinToString("")
+            }
         }
-        return result;
+        // No w-mappable vowel found — return buffer unchanged so the guard in processKey fires correctly
+        return buffer.toString()
     }
 
     private fun applyCharModifiers(char: Char): Boolean {
@@ -229,8 +304,7 @@ class VietnameseTextInput {
             for ((pattern, replacement) in charModifiers) {
                 if (buffer.endsWith(pattern, true)) {
                     buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
-                    val check = char != 'd'
-                    if (char != 'd' && char != 'w') {
+                    if (char != 'w') {
                         charModified = true
                     }
                     return true;

@@ -1,6 +1,5 @@
 package io.github.oin.titanpocketkeyboard
 
-import VietnameseTextInput
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
@@ -314,28 +313,8 @@ class InputMethodService : AndroidInputMethodService() {
 
 		// speech to text
 		if (keyCode == KEYCODE_FUNCTION && event.isLongPress && !isListening) {
-			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-				!= PackageManager.PERMISSION_GRANTED) {
-				Log.d("InputMethodService", "Request permission")
-
-				// Open Settings to grant permission manually
-				val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-				intent.data = Uri.parse("package:$packageName")
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-				startActivity(intent)
-
-				Toast.makeText(this, "Please grant microphone permission in Settings", Toast.LENGTH_LONG).show()
-				return true // Stop further processing if permission is not granted
-			}
-			if (restartSpeechRecognizer) {
-				speechRecognizer?.destroy()
-				speechRecognizer = null
-				initSpeechRecornizer()
-			}
-
-			isListening = true
-			Log.d("InputMethodService", "Started speech recognition")
-			speechRecognizer?.startListening(speechRecognizerIntent)
+			if (!ensureMicPermission()) return true
+			startSpeechListening()
 			return true // Consume the event
 		}
 
@@ -445,8 +424,14 @@ class InputMethodService : AndroidInputMethodService() {
 				return true
 			}
 
-			// Get the Unicode character for this key event
+			// Get the Unicode character for this key event, applying current Alt/Shift modifier state
 			val unicodeChar = event.getUnicodeChar(enhancedMetaState(event)).toChar()
+			// FIX-02: consume the Alt one-shot BEFORE processing the Telex result, so the modifier
+			// clears for the current key regardless of whether a Telex transformation occurs.
+			// nextDidConsume() is idempotent (ModifierTest.oneShot_fxFix02_nextDidConsumeIdempotent),
+			// so consuming here covers both the transforming and non-transforming paths safely.
+			consumeModifierNext()
+
 			// Process Vietnamese Telex input
 			val replacement = vietnameseTelex.processKey(unicodeChar)
 
@@ -458,18 +443,22 @@ class InputMethodService : AndroidInputMethodService() {
 				// Delete the previous character and insert the new transformed character
 				val textBeforeCursor = currentInputConnection?.getTextBeforeCursor(100, 0)?.toString() ?: ""
 				val lastSpaceIndex = textBeforeCursor.lastIndexOf(' ')
-				val deleteLength = minOf(replacementLength, textBeforeCursor.length - lastSpaceIndex - 1)
+				// FIX-05: clamp deleteLength to the current word fragment (chars after the last
+				// space, or all chars when at the start of the field where lastSpaceIndex == -1).
+				// This ensures we never over-delete past the word boundary and never go negative,
+				// regardless of whether the replacement string is longer or shorter than the
+				// on-screen fragment being replaced (e.g. a multi-character composed diacritic form).
+				val wordFragmentLength = textBeforeCursor.length - lastSpaceIndex - 1
+				val deleteLength = minOf(replacementLength, wordFragmentLength).coerceAtLeast(0)
 
 				if (deleteLength > 0) {
 					currentInputConnection?.deleteSurroundingText(deleteLength, 0)
 				}
 				sendCharacter(replacement, true)  // Use strict mode to preserve case
-				consumeModifierNext()
 				return true
 			}
 
-			// If no transformation, process normally
-			consumeModifierNext()
+			// If no transformation, process normally (modifier already consumed above)
 			val result = super.onKeyDown(keyCode, event)
 
 			return result
@@ -575,30 +564,8 @@ class InputMethodService : AndroidInputMethodService() {
 
 		if(event.keyCode == KeyEvent.KEYCODE_F && !isListening) {
 			// speech to text
-			if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-				!= PackageManager.PERMISSION_GRANTED) {
-				Log.d("InputMethodService", "Request permission")
-
-				// Open Settings to grant permission manually
-				val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-				intent.data = Uri.parse("package:$packageName")
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-				startActivity(intent)
-
-				Toast.makeText(this, "Please grant microphone permission in Settings", Toast.LENGTH_LONG).show()
-				return true // Stop further processing if permission is not granted
-			}
-
-			if (restartSpeechRecognizer) {
-				speechRecognizer?.destroy()
-				speechRecognizer = null
-				initSpeechRecornizer()
-			}
-
-
-			isListening = true
-			Log.d("InputMethodService", "Started speech recognition")
-			speechRecognizer?.startListening(speechRecognizerIntent)
+			if (!ensureMicPermission()) return true
+			startSpeechListening()
 			return true // Consume the event
 		}
 
@@ -773,6 +740,53 @@ class InputMethodService : AndroidInputMethodService() {
 		shift.nextDidConsume()
 		alt.nextDidConsume()
 		updateStatusIconIfNeeded()
+	}
+
+	/**
+	 * FIX-07: Consolidated microphone permission gate for all in-service speech-start sites.
+	 * Returns true when RECORD_AUDIO is granted; returns false after directing the user to
+	 * grant permission via app Settings (opens ACTION_APPLICATION_DETAILS_SETTINGS and shows
+	 * a Toast) so the caller can bail out immediately with `if (!ensureMicPermission()) return true`.
+	 * Note: SettingsActivity uses a separate Activity-scoped requestPermissions flow — that is
+	 * a different context and is intentionally not merged here.
+	 */
+	private fun ensureMicPermission(): Boolean {
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+			== PackageManager.PERMISSION_GRANTED) {
+			return true
+		}
+		Log.d("InputMethodService", "Request permission")
+		val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+		intent.data = Uri.parse("package:$packageName")
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+		startActivity(intent)
+		Toast.makeText(this, "Please grant microphone permission in Settings", Toast.LENGTH_LONG).show()
+		return false
+	}
+
+	/**
+	 * FIX-06: Null-safe speech listening start shared by both speech-start sites.
+	 * Handles the restart-then-listen sequence: if the recognizer needs a restart after an
+	 * error (restartSpeechRecognizer == true), destroys and re-initializes it first.
+	 * Guards startListening behind a non-null check so a null/destroyed recognizer never NPEs.
+	 */
+	private fun startSpeechListening() {
+		if (restartSpeechRecognizer) {
+			speechRecognizer?.destroy()
+			speechRecognizer = null
+			restartSpeechRecognizer = false
+			initSpeechRecornizer()
+		}
+		val recognizer = speechRecognizer
+		if (recognizer != null) {
+			isListening = true
+			Log.d("InputMethodService", "Started speech recognition")
+			recognizer.startListening(speechRecognizerIntent)
+		} else {
+			// Recognizer could not be initialized (e.g. SpeechRecognizer not available on device);
+			// no-op cleanly rather than crash.
+			Log.e("InputMethodService", "speechRecognizer is null — cannot start listening")
+		}
 	}
 
 	/**

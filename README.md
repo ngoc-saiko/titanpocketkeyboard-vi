@@ -21,6 +21,93 @@ Demo video from the main repo: https://github.com/oin/titanpocketkeyboard/assets
 - See modifier key state in the status bar.
 - Auto-capitalization of the first letter of a sentence.
 - Two spaces after a period automatically replaced by a period and a space.
+- **Vietnamese Telex input** with correct tone mark placement.
+- **Shortcuts** — expand abbreviations to full text on Enter.
+- **Speech to text** — dictate into any text field.
+
+# Vietnamese Input (Telex)
+
+Select the **Vietnamese** template in Settings → Accented characters → Template to enable Telex mode.
+
+## Tone marks
+
+Type the tone key **after** the vowels of the syllable:
+
+| Key | Tone | Example |
+| --- | --- | --- |
+| `s` | sắc (´) | `as` → `á` |
+| `f` | huyền (`) | `af` → `à` |
+| `r` | hỏi (ˀ) | `ar` → `ả` |
+| `x` | ngã (~) | `ax` → `ã` |
+| `j` | nặng (.) | `aj` → `ạ` |
+
+The tone is automatically placed on the correct vowel nucleus, even in complex syllables (e.g. `yeus` → `yếu`, `thuongs` → `thướng`).
+
+## Diacritics
+
+| Keys | Result | Keys | Result |
+| --- | --- | --- | --- |
+| `aa` | `â` | `oo` | `ô` |
+| `aw` | `ă` | `ow` | `ơ` |
+| `ee` | `ê` | `uw` | `ư` |
+| `dd` | `đ` | | |
+
+Pressing `w` after `a`, `o`, or `u` also works as a shorthand: `aw` → `ă`, `ow` → `ơ`, `uw` → `ư`.
+
+Type the same modifier twice to undo it (e.g. `aaw` → `aw`).
+
+## Examples
+
+| Type | Result |
+| --- | --- |
+| `viet` | `việt` |
+| `namf` | `nàm` |
+| `tieets` | `tiết` |
+| `yeus` | `yếu` |
+| `thuongs` | `thướng` |
+| `dduwowngf` | `đường` |
+
+# Shortcuts
+
+Shortcuts let you expand abbreviations into full phrases automatically when you press Enter.
+
+## Setup
+
+1. Go to Settings → Accented characters → **Shortcuts**.
+2. Add one shortcut per line in the format:
+
+```
+shortcut ## Full text
+```
+
+**Example:**
+
+```
+btw ## by the way
+addr ## 123 Main Street, Hanoi
+tks ## Cảm ơn bạn rất nhiều!
+```
+
+Matching is case-insensitive. The shortcut key can be lowercase; it will match regardless of how you typed it.
+
+## Usage
+
+1. Type the shortcut in any text field.
+2. Press **Enter** — the shortcut is instantly replaced with the full text.
+
+# Speech to Text
+
+Dictate text into any text field using the device microphone.
+
+## Setup
+
+Grant the microphone permission the first time you use the feature (a system dialog will appear).
+
+## Usage
+
+1. **Long-press the `Fn` key** to start listening. The IME begins capturing your speech.
+2. **Speak** — recognized text is inserted into the text field in real time.
+3. **Press `Space`** to stop listening.
 
 # Keyboard layout
 
