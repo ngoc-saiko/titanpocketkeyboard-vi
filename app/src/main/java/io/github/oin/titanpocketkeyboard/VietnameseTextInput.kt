@@ -190,7 +190,11 @@ class VietnameseTextInput {
 
         if (char == 'w') {
             val newStr = applyWCharModifiers()
-            if (buffer.toString() != newStr) return newStr
+            if (buffer.toString() != newStr) {
+                setBuffer(newStr)
+                charModified = true
+                return newStr
+            }
         }
         buffer.append(char)
 
@@ -231,8 +235,7 @@ class VietnameseTextInput {
             for ((pattern, replacement) in charModifiers) {
                 if (buffer.endsWith(pattern, true)) {
                     buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
-                    val check = char != 'd'
-                    if (char != 'd' && char != 'w') {
+                    if (char != 'w') {
                         charModified = true
                     }
                     return true;
