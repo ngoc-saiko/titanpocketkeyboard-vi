@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 02
-status: completed
-stopped_at: Completed 02-04-PLAN.md — revert/invalidSequences/tonePlacement/wModifiers tests
-last_updated: "2026-08-18T04:36:29.003Z"
+current_phase: 03
+current_phase_name: bug-fixes-and-cleanup
+status: executing
+stopped_at: Completed 03-03-PLAN.md — FIX-02/05/06/07 InputMethodService integration fixes
+last_updated: "2026-08-18T07:32:10.777Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 01 execution started
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 4
-current_phase_name: unit-test-suite
+  total_plans: 9
+  completed_plans: 6
 ---
 
 # Project State
@@ -23,16 +23,16 @@ current_phase_name: unit-test-suite
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** Vietnamese input must be accurate and predictable — every key sequence produces the correct character, every time, on any input field.
-**Current focus:** Phase 02 — unit-test-suite
+**Current focus:** Phase 03 — bug-fixes-and-cleanup
 
 ## Current Position
 
-Phase: 02 — COMPLETE
-Plan: 4 of 4
-Status: Phase 02 complete
-Last activity: 2026-08-18 — Phase 02 marked complete
+Phase: 03 (bug-fixes-and-cleanup) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-08-18 — Phase 03 execution started
 
-Progress: [████████░░] 80%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [████████░░] 80%
 | Phase 02-unit-test-suite P02-02 | 3m | 1 tasks | 2 files |
 | Phase 02-unit-test-suite P03 | 7m | 2 tasks | 2 files |
 | Phase 02-unit-test-suite P04 | 4m | 2 tasks | 1 files |
+| Phase 03 P03-03 | 4m | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,9 @@ Recent decisions affecting current work:
 - [Phase ?]: FIX-02 integration bug documented in test comment; unit mechanism works correctly; integration path in InputMethodService is deferred to Phase 3
 - [Phase ?]: revert_aw_thenA and revert_dd_thenD are RED — FIX-01 scope is broader: charModified not set via w-early-return path or for 'd' (explicitly excluded at line 234)
 - [Phase ?]: 6 RED tests total document correct Telex spec for bugs FIX-01 (extended), FIX-03, FIX-04 — Phase 3 must fix all 6 red test paths
+- [Phase ?]: FIX-02 consume placed after unicodeChar computation but before processKey() call — modifier state is applied to the current key's char code, then immediately cleared for the next key
+- [Phase ?]: FIX-07 does NOT consolidate SettingsActivity.checkAndRequestPermission — that uses ActivityCompat.requestPermissions (Activity-only API); only the two in-service IME sites are merged
+- [Phase ?]: FIX-06 restartSpeechRecognizer reset to false inside startSpeechListening() after destroy/reinit — prevents repeated reinit after a single recognition error
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ Items acknowledged and carried forward (v2 scope):
 
 ## Session Continuity
 
-Last session: 2026-08-18T04:30:29.614Z
-Stopped at: Completed 02-04-PLAN.md — revert/invalidSequences/tonePlacement/wModifiers tests
+Last session: 2026-08-18T07:32:10.771Z
+Stopped at: Completed 03-03-PLAN.md — FIX-02/05/06/07 InputMethodService integration fixes
 Resume file: None

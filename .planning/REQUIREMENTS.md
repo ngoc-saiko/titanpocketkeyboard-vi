@@ -35,12 +35,12 @@
 ### Bug Fixes
 
 - [ ] **FIX-01**: `ơ + w` produces `ow` (not `ơw`) — fix `applyCharModifiers()` to set `charModified = true` for `w`-triggered transforms so the revert path fires correctly
-- [ ] **FIX-02**: Alt one-shot works in Vietnamese mode on all input field types — fix `onKeyDown()` to call `consumeModifierNext()` before the Telex gate, not after
+- [x] **FIX-02**: Alt one-shot works in Vietnamese mode on all input field types — fix `onKeyDown()` to call `consumeModifierNext()` before the Telex gate, not after
 - [ ] **FIX-03**: Tone marks are placed on the correct vowel in multi-vowel syllables — replace `findFirstVowelIndex()` logic with quality-diacritic priority rule followed by the diphthong table
 - [ ] **FIX-04**: `VietnameseTextInput.applyWCharModifiers()` only modifies the last w-mappable vowel in the buffer, not all occurrences
-- [ ] **FIX-05**: `deleteLength` calculation correctly handles Vietnamese Telex multi-character replacements without leaving text remnants
-- [ ] **FIX-06**: `speechRecognizer` null-safety checks are present in all access paths in `InputMethodService.kt`
-- [ ] **FIX-07**: Microphone permission requests are consolidated to a single location with consistent error handling
+- [x] **FIX-05**: `deleteLength` calculation correctly handles Vietnamese Telex multi-character replacements without leaving text remnants
+- [x] **FIX-06**: `speechRecognizer` null-safety checks are present in all access paths in `InputMethodService.kt`
+- [x] **FIX-07**: Microphone permission requests are consolidated to a single location with consistent error handling
 - [ ] **FIX-08**: Consonant classification in `MultipressController` is data-driven rather than hardcoded keycode checks
 - [ ] **FIX-09**: `MPSUBST_*` magic character constants are documented with rationale and usage context
 - [ ] **FIX-10**: `invalidSequences` blacklist is extracted to a configuration-driven validator or clearly documented rule set
@@ -91,12 +91,12 @@
 | TEST-11 | Phase 2 | Complete |
 | TEST-12 | Phase 2 | Complete |
 | FIX-01 | Phase 3 | Pending |
-| FIX-02 | Phase 3 | Pending |
+| FIX-02 | Phase 3 | Complete |
 | FIX-03 | Phase 3 | Pending |
 | FIX-04 | Phase 3 | Pending |
-| FIX-05 | Phase 3 | Pending |
-| FIX-06 | Phase 3 | Pending |
-| FIX-07 | Phase 3 | Pending |
+| FIX-05 | Phase 3 | Complete |
+| FIX-06 | Phase 3 | Complete |
+| FIX-07 | Phase 3 | Complete |
 | FIX-08 | Phase 3 | Pending |
 | FIX-09 | Phase 3 | Pending |
 | FIX-10 | Phase 3 | Pending |
