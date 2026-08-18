@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: bug-fixes-and-cleanup
 status: executing
-stopped_at: Completed 03-03-PLAN.md — FIX-02/05/06/07 InputMethodService integration fixes
-last_updated: "2026-08-18T07:32:10.777Z"
+stopped_at: Completed 03-02-PLAN.md — FIX-03/FIX-04/FIX-10 fixes; full suite 76/0
+last_updated: "2026-08-18T07:42:54.351Z"
 last_activity: 2026-08-18
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 8
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-08-18)
 ## Current Position
 
 Phase: 03 (bug-fixes-and-cleanup) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-08-18 — Phase 03 execution started
 
-Progress: [███████░░░] 67%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -63,6 +63,8 @@ Progress: [███████░░░] 67%
 | Phase 02-unit-test-suite P03 | 7m | 2 tasks | 2 files |
 | Phase 02-unit-test-suite P04 | 4m | 2 tasks | 1 files |
 | Phase 03 P03-03 | 4m | 3 tasks | 1 files |
+| Phase 03 P04 | 6m | 2 tasks | 1 files |
+| Phase 03 P02 | 3m | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -85,6 +87,11 @@ Recent decisions affecting current work:
 - [Phase ?]: FIX-02 consume placed after unicodeChar computation but before processKey() call — modifier state is applied to the current key's char code, then immediately cleared for the next key
 - [Phase ?]: FIX-07 does NOT consolidate SettingsActivity.checkAndRequestPermission — that uses ActivityCompat.requestPermissions (Activity-only API); only the two in-service IME sites are merged
 - [Phase ?]: FIX-06 restartSpeechRecognizer reset to false inside startSpeechListening() after destroy/reinit — prevents repeated reinit after a single recognition error
+- [Phase ?]: FIX-08: data-driven consonant set {KEYCODE_C, KEYCODE_S} replaces hardcoded arrayOf literal in MultipressController — FIXME resolved
+- [Phase ?]: FIX-09: all 10 MPSUBST_* constants documented with code point rationale and process() dispatch site
+- [Phase ?]: FIX-04: move 'w' branch before invalidSequences check — 'w' is a buffer modifier, not a new char; blacklist check orthogonal
+- [Phase ?]: FIX-03: toneMappingEnd['uo']='o' — lowest-risk nucleus fix for uo diphthong, mirrors existing oa/oe entries
+- [Phase ?]: FIX-10: documentation-only; FEAT-01 rule-based validator is the planned v2 replacement
 
 ### Pending Todos
 
@@ -110,6 +117,6 @@ Items acknowledged and carried forward (v2 scope):
 
 ## Session Continuity
 
-Last session: 2026-08-18T07:32:10.771Z
-Stopped at: Completed 03-03-PLAN.md — FIX-02/05/06/07 InputMethodService integration fixes
+Last session: 2026-08-18T07:42:54.343Z
+Stopped at: Completed 03-02-PLAN.md — FIX-03/FIX-04/FIX-10 fixes; full suite 76/0
 Resume file: None
