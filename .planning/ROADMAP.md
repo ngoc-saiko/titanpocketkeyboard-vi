@@ -48,13 +48,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. State-machine tests exist for Modifier hold, one-shot, and lock modes, including the specific sequence (Alt tap → non-transforming key → no metaState) that exposes the Alt one-shot bug in Vietnamese mode
   5. Tests exist for MultipressController consonant filtering, character substitution sequences, and `applyWCharModifiers()` last-character-only behavior
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 
 Plans:
 
 - [x] 02-01-PLAN.md — End-to-end tracer: tone mark and Modifier hold tests proving both classes importable
 - [x] 02-02-PLAN.md — VietnameseTextInput tone mark and vowel modifier tests (TEST-01, TEST-02)
-- [ ] 02-03-PLAN.md — Modifier state-machine tests and MultipressController consonant filtering and substitution tests
+- [x] 02-03-PLAN.md — Modifier state-machine tests and MultipressController consonant filtering and substitution tests
 - [ ] 02-04-PLAN.md — VietnameseTextInput revert, invalidSequences, tone placement, and applyWCharModifiers tests (TEST-03, TEST-04, TEST-05, TEST-12)
 
 ### Phase 3: Bug Fixes and Cleanup
@@ -80,5 +80,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Test Infrastructure | 1/1 | Complete   | 2026-08-18 |
-| 2. Unit Test Suite | 2/4 | In Progress|  |
+| 2. Unit Test Suite | 3/4 | In Progress|  |
 | 3. Bug Fixes and Cleanup | 0/? | Not started | - |

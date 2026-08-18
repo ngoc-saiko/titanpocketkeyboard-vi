@@ -22,14 +22,14 @@
 ### Unit Tests — Modifier
 
 - [x] **TEST-06**: State-machine tests cover Modifier hold mode — Alt held for duration applies metaState, releasing removes it
-- [ ] **TEST-07**: State-machine tests cover Modifier one-shot mode — press+release then next key gets metaState, subsequent key does not
-- [ ] **TEST-08**: State-machine tests cover Modifier lock mode — double-tap locks; all subsequent keys get metaState until unlocked
-- [ ] **TEST-09**: Tests verify `nextDidConsume()` correctly clears the one-shot state
+- [x] **TEST-07**: State-machine tests cover Modifier one-shot mode — press+release then next key gets metaState, subsequent key does not
+- [x] **TEST-08**: State-machine tests cover Modifier lock mode — double-tap locks; all subsequent keys get metaState until unlocked
+- [x] **TEST-09**: Tests verify `nextDidConsume()` correctly clears the one-shot state
 
 ### Unit Tests — MultipressController
 
-- [ ] **TEST-10**: Tests cover consonant filtering — consonant keys do not trigger vowel-modifier substitution
-- [ ] **TEST-11**: Tests cover multipress character substitution sequences using the template system
+- [x] **TEST-10**: Tests cover consonant filtering — consonant keys do not trigger vowel-modifier substitution
+- [x] **TEST-11**: Tests cover multipress character substitution sequences using the template system
 - [ ] **TEST-12**: Tests verify `applyWCharModifiers()` only transforms the last character, not the entire buffer
 
 ### Bug Fixes
@@ -84,11 +84,11 @@
 | TEST-04 | Phase 2 | Pending |
 | TEST-05 | Phase 2 | Pending |
 | TEST-06 | Phase 2 | Complete |
-| TEST-07 | Phase 2 | Pending |
-| TEST-08 | Phase 2 | Pending |
-| TEST-09 | Phase 2 | Pending |
-| TEST-10 | Phase 2 | Pending |
-| TEST-11 | Phase 2 | Pending |
+| TEST-07 | Phase 2 | Complete |
+| TEST-08 | Phase 2 | Complete |
+| TEST-09 | Phase 2 | Complete |
+| TEST-10 | Phase 2 | Complete |
+| TEST-11 | Phase 2 | Complete |
 | TEST-12 | Phase 2 | Pending |
 | FIX-01 | Phase 3 | Pending |
 | FIX-02 | Phase 3 | Pending |
