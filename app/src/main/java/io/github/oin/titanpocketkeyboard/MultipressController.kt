@@ -63,6 +63,13 @@ class MultipressController(val substitutions: Array<HashMap<Int, Array<Char>>>) 
 	 * Whether to ignore consonants on the first level.
 	 */
 	var ignoreConsonantsOnFirstLevel = false
+	/**
+	 * The set of keycodes classified as consonants and suppressed on the first multipress level
+	 * when [ignoreConsonantsOnFirstLevel] is enabled. Defaults to {KEYCODE_C, KEYCODE_S} — the two
+	 * consonant keys that must not override basic character input on level 0. This set is configurable
+	 * so that future layouts can adjust consonant classification without changing the filter logic.
+	 */
+	var firstLevelConsonantKeycodes: Set<Int> = setOf(KeyEvent.KEYCODE_C, KeyEvent.KEYCODE_S)
 
 	private var last: Int = 0
 	private var lastTime: Long = 0
@@ -102,8 +109,7 @@ class MultipressController(val substitutions: Array<HashMap<Int, Array<Char>>>) 
 				longPressCount = 0
 			}
 
-			//FIXME: Rather than doing this, mark these undesirables another way
-			if(ignoreConsonantsOnFirstLevel && longPressCount == 0 && keyCode in arrayOf(KeyEvent.KEYCODE_C, KeyEvent.KEYCODE_S)) {
+			if(ignoreConsonantsOnFirstLevel && longPressCount == 0 && keyCode in firstLevelConsonantKeycodes) {
 				return MPSUBST_BYPASS
 			}
 
