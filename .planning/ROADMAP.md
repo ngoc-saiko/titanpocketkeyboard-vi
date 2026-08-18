@@ -26,7 +26,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. `./gradlew test` completes without compilation errors — the smoke test class in `src/test/` compiles and passes
   2. A test class in a declared package can import `VietnameseTextInput` without a "cannot access default-package class" error
   3. MockK is available on the test classpath so `mockkStatic(Log::class)` compiles and runs without `NoClassDefFoundError`
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 01-01-PLAN.md — Declare package on VietnameseTextInput, add MockK dependency, and prove with a passing smoke test via `./gradlew test`
 
 ### Phase 2: Unit Test Suite
 **Goal**: A comprehensive unit test suite documents the correct Telex specification and exposes all known bugs as failing tests before any fix is applied
@@ -59,6 +60,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Infrastructure | 0/? | Not started | - |
+| 1. Test Infrastructure | 0/1 | Not started | - |
 | 2. Unit Test Suite | 0/? | Not started | - |
 | 3. Bug Fixes and Cleanup | 0/? | Not started | - |
