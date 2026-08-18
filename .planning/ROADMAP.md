@@ -13,7 +13,7 @@ This milestone is a correctness and quality pass on an existing, feature-complet
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Test Infrastructure** - Add package declaration, MockK dependency, and verify test runner compiles
+- [x] **Phase 1: Test Infrastructure** - Add package declaration, MockK dependency, and verify test runner compiles
 - [ ] **Phase 2: Unit Test Suite** - Write parameterized tests for VietnameseTextInput, Modifier, and MultipressController; red tests document known bugs
 - [ ] **Phase 3: Bug Fixes and Cleanup** - Fix all ten documented bugs; red tests turn green; secondary quality and safety issues resolved
 
@@ -72,6 +72,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Infrastructure | 0/1 | Planned    |  |
+| 1. Test Infrastructure | 1/1 | Complete   | 2026-08-18 |
 | 2. Unit Test Suite | 0/? | Not started | - |
 | 3. Bug Fixes and Cleanup | 0/? | Not started | - |
