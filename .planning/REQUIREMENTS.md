@@ -83,23 +83,23 @@
 | TEST-03 | Phase 2 | Pending |
 | TEST-04 | Phase 2 | Pending |
 | TEST-05 | Phase 2 | Pending |
-| TEST-06 | Phase 3 | Pending |
-| TEST-07 | Phase 3 | Pending |
-| TEST-08 | Phase 3 | Pending |
-| TEST-09 | Phase 3 | Pending |
-| TEST-10 | Phase 3 | Pending |
-| TEST-11 | Phase 3 | Pending |
-| TEST-12 | Phase 3 | Pending |
-| FIX-01 | Phase 4 | Pending |
-| FIX-02 | Phase 4 | Pending |
-| FIX-03 | Phase 4 | Pending |
-| FIX-04 | Phase 4 | Pending |
-| FIX-05 | Phase 4 | Pending |
-| FIX-06 | Phase 4 | Pending |
-| FIX-07 | Phase 4 | Pending |
-| FIX-08 | Phase 4 | Pending |
-| FIX-09 | Phase 4 | Pending |
-| FIX-10 | Phase 4 | Pending |
+| TEST-06 | Phase 2 | Pending |
+| TEST-07 | Phase 2 | Pending |
+| TEST-08 | Phase 2 | Pending |
+| TEST-09 | Phase 2 | Pending |
+| TEST-10 | Phase 2 | Pending |
+| TEST-11 | Phase 2 | Pending |
+| TEST-12 | Phase 2 | Pending |
+| FIX-01 | Phase 3 | Pending |
+| FIX-02 | Phase 3 | Pending |
+| FIX-03 | Phase 3 | Pending |
+| FIX-04 | Phase 3 | Pending |
+| FIX-05 | Phase 3 | Pending |
+| FIX-06 | Phase 3 | Pending |
+| FIX-07 | Phase 3 | Pending |
+| FIX-08 | Phase 3 | Pending |
+| FIX-09 | Phase 3 | Pending |
+| FIX-10 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 23 total
@@ -108,4 +108,4 @@
 
 ---
 *Requirements defined: 2026-08-18*
-*Last updated: 2026-08-18 after initial definition*
+*Last updated: 2026-08-18 — traceability updated to 3-phase roadmap (coarse granularity)*
