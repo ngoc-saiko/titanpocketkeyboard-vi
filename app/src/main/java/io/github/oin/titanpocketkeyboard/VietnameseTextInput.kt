@@ -14,7 +14,7 @@ class VietnameseTextInput {
         'A', 'Ă', 'Â', 'E', 'Ê', 'I', 'O', 'Ô', 'Ơ', 'U', 'Ư', 'Y'
     )
 
-    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'd', 'w')
+    public val modifiableChars = setOf ('a', 'e', 'i', 'o', 'u', 'y', 'd', 'w')
 
     private val tonedVowelSet = setOf(
         'á', 'à', 'ả', 'ã', 'ạ', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ',
