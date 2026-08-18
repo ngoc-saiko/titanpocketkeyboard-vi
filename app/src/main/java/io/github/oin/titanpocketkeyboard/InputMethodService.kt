@@ -1,6 +1,5 @@
 package io.github.oin.titanpocketkeyboard
 
-import VietnameseTextInput
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
