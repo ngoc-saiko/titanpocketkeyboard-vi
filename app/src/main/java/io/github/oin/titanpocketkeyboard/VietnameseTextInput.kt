@@ -290,6 +290,11 @@ class VietnameseTextInput {
             return false
         }
 
+        // Reverse is tried first, but must NOT short-circuit the forward path.
+        // reverseCharModifier keys all begin with a composed non-ASCII character (đ, ê, â, ô, ơ,
+        // ă, ư) while charModifiers keys are pure-ASCII pairs (dd, ee, aa, oo, ow, aw, uw). The
+        // two sets are therefore disjoint over the same 2-char buffer suffix, so checking reverse
+        // first can never steal a match from forward.
         if (charModified) {
             // reverse modify char
             // âa --> aa
@@ -299,16 +304,28 @@ class VietnameseTextInput {
                     return true;
                 }
             }
-        } else {
-            // aa --> â
-            for ((pattern, replacement) in charModifiers) {
-                if (buffer.endsWith(pattern, true)) {
-                    buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
-                    if (char != 'w') {
-                        charModified = true
-                    }
-                    return true;
+        }
+
+        // den-ee-circumflex regression: fall through to the forward path when no reverse pattern
+        // matched, instead of the previous `else` short-circuit.
+        //
+        // `charModified` is a buffer-GLOBAL flag, but `đ` is an ONSET consonant, not the syllable
+        // nucleus. Once `dd` --> `đ` set the flag, the `else` locked the rest of the syllable into
+        // reverse-only lookups, so the nucleus could never take its own modifier: `đ` + `ee` stayed
+        // `đee` instead of composing `đê`. That broke every `đ` + double-letter-vowel syllable
+        // (đến, đâu, đôi, đăng, ...). It also cascaded: the residual `ee` in the buffer then matched
+        // the `invalidSequences` blacklist, which suppressed the following tone key as well.
+        //
+        // The reverse check above is already positional via buffer.endsWith(), so the flag alone
+        // must not gate the forward path.
+        // aa --> â
+        for ((pattern, replacement) in charModifiers) {
+            if (buffer.endsWith(pattern, true)) {
+                buffer.replace(buffer.length - pattern.length, buffer.length, replacement)
+                if (char != 'w') {
+                    charModified = true
                 }
+                return true;
             }
         }
         return false;
